@@ -32,22 +32,46 @@ def blocks(data):
 
 class EmptyPDFResultsTests(unittest.TestCase):
     def test_empty_result_sections(self):
-        for data in ({}, {"flags": [], "strace": [], "gtfo": [], "timeouts": []},
-                     {"flags": None, "strace": "", "gtfo": None, "timeouts": ""}):
+        for data in (
+            {},
+            {"flags": [], "strace": [], "gtfo": [], "timeouts": []},
+            {"flags": None, "strace": "", "gtfo": None, "timeouts": ""},
+        ):
             with self.subTest(data=data):
-                self.assertEqual(blocks({"/example/binary": data}), ["No results available"] * 4)
+                self.assertEqual(
+                    blocks({"/example/binary": data}), ["No results available"] * 4
+                )
 
     def test_nonempty_results_remain_and_escaped(self):
-        data = {"flags": [{"string": "<flag>", "severity": "low"}],
-                "strace": ["trace"], "gtfo": ["match"], "timeouts": ["timeout"]}
-        self.assertEqual(blocks({"/example/binary": data}), ["<flag> (low)\n", "trace", "match", "timeout"])
+        data = {
+            "flags": [{"string": "<flag>", "severity": "low"}],
+            "strace": ["trace"],
+            "gtfo": ["match"],
+            "timeouts": ["timeout"],
+        }
+        self.assertEqual(
+            blocks({"/example/binary": data}),
+            ["<flag> (low)\n", "trace", "match", "timeout"],
+        )
         self.assertIn("&lt;flag&gt;", generate_PDF({"/example/binary": data}))
-        self.assertNotIn("No results available", generate_PDF({"/example/binary": data}))
+        self.assertNotIn(
+            "No results available", generate_PDF({"/example/binary": data})
+        )
 
     def test_mixed_sections_and_multiple_binaries(self):
-        self.assertEqual(blocks({"/a": {"strace": ["trace"]}, "/b": {"gtfo": ["match"]}}),
-                         ["No results available", "trace", "No results available", "No results available",
-                          "No results available", "No results available", "match", "No results available"])
+        self.assertEqual(
+            blocks({"/a": {"strace": ["trace"]}, "/b": {"gtfo": ["match"]}}),
+            [
+                "No results available",
+                "trace",
+                "No results available",
+                "No results available",
+                "No results available",
+                "No results available",
+                "match",
+                "No results available",
+            ],
+        )
 
     def test_no_binaries(self):
         self.assertIn("No results available", generate_PDF({}))
