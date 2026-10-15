@@ -44,7 +44,7 @@ pip install rich yattag weasyprint
 If you have dependency issues on first install, run setup.sh
 
 
-# 🛠 Installation
+# Installation
 Cloning the repo-
 ```bash
 git clone https://github.com/stlynnxx/slipperypenguin.git
@@ -74,7 +74,7 @@ can afford to do so, every penny helps out!
 
 ## Usage
 
-## 🔧 Command Line Arguments
+## Command Line Arguments
 
 | Argument | Short | Type | Description |
 |----------|-------|------|-------------|
@@ -195,7 +195,7 @@ flowchart TD
 | `gfto-out.json` | GTFOBins matches |
 | `html-out.html` | Formatted HTML report |
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
