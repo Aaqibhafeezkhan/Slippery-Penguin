@@ -6,7 +6,7 @@ from htmlgenerator import generate_report, generate_PDF
 from weasyprint import HTML
 
 console = Console()
-# Version
+# Version number
 __version__ = "2.3.7"
 UPDATE_URL = "https://eclecticelectronics.fly.dev/api/check-update/"
 # art is from https://www.asciiart.eu/art/2e5ef0982cbcf027
