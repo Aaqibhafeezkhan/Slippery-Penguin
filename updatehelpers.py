@@ -9,9 +9,11 @@ import hashlib
 import shutil
 import subprocess
 import tarfile
+
 console = Console()
+
 # Version
-__version__ = "2.3.6"
+__version__ = "2.3.7"
 UPDATE_URL = "https://eclecticelectronics.fly.dev/api/check-update/"
 
 
@@ -20,7 +22,10 @@ def download_update(url, expected_hash):
     os.close(fd)
     hasher = hashlib.sha256()
     try:
-        with urllib.request.urlopen(url, timeout=10) as resp, open(tmp_path, "wb") as out:
+        with (
+            urllib.request.urlopen(url, timeout=10) as resp,
+            open(tmp_path, "wb") as out,
+        ):
             while chunk := resp.read(65536):
                 out.write(chunk)
                 hasher.update(chunk)
@@ -56,12 +61,7 @@ def install_update(extract_dir):
 
 def gtfo_update():
     try:
-        subprocess.run([
-            "curl",
-            "https://gtfobins.org/api.json",
-            "-o",
-            "gtfobins.json"
-        ])
+        subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
         console.print("[green]GTFOBins updated at gtfobins.json[/green]")
     except Exception as e:
         console.print(f"[red]Updating GTFObins failed, {e}[/red]")
@@ -86,8 +86,12 @@ def update_chk():
         return None
 
     if latest > __version__:
-        console.print(f"[magenta]Update available: {latest} (you are running {__version__})[/magenta]")
-        console.print("[green]Would you like to update, or stay on the current version? (y to update):[/green]")
+        console.print(
+            f"[magenta]Update available: {latest} (you are running {__version__})[/magenta]"
+        )
+        console.print(
+            "[green]Would you like to update, or stay on the current version? (y to update):[/green]"
+        )
         console.print("[magenta](y/n)[/magenta]")
         usr_in = input().lower()
 
@@ -97,7 +101,9 @@ def update_chk():
 
         # Execute update
         try:
-            subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
+            subprocess.run(
+                ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"]
+            )
             console.print("[green]GTFOBins updated at gtfobins.json[/green]")
 
             downloaded_path = download_update(update_info["url"], latest)

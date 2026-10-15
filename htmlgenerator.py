@@ -5,30 +5,29 @@ import json
 
 def generate_PDF(b_exp):
     try:
-        with open('art.txt', 'r') as f:
+        with open("art.txt", "r") as f:
             ascii_art = f.read()
     except FileNotFoundError:
         ascii_art = ""
     doc, tag, text = Doc().tagtext()
-    with tag('html', lang='en'):
-        with tag('head'):
-            with tag('meta', charset='utf-8'):
+    with tag("html", lang="en"):
+        with tag("head"):
+            with tag("meta", charset="utf-8"):
                 pass
-            with tag('title'):
-                text('Slippery Penguin PDF Report')
+            with tag("title"):
+                text("Slippery Penguin PDF Report")
 
-
-            with tag('style'):
-                doc.asis('''
+            with tag("style"):
+                doc.asis("""
                 @page {
                     margin: 0.5cm;              
                     size: Letter;                 
                     @top-right {
                         content: "Page " counter(page) " of " counter(pages);}}
-''')
+""")
 
-            with tag('style'):
-                doc.asis(f'''
+            with tag("style"):
+                doc.asis(f"""
                     body::before {{
                         position: fixed;
                         bottom: 5px;
@@ -113,27 +112,27 @@ def generate_PDF(b_exp):
                     h1, h2, h3 {{
                         color: #00ff00;
                     }}
-                ''')
+                """)
 
-        with tag('body'):
+        with tag("body"):
             # Header
-            with tag('div', klass='header'):
-                with tag('h1'):
-                    text('Slippery Penguin')
-                with tag('p'):
-                    text('Results Reporting')
+            with tag("div", klass="header"):
+                with tag("h1"):
+                    text("Slippery Penguin")
+                with tag("p"):
+                    text("Results Reporting")
 
             # Binary Results
             if not b_exp:
-                with tag('p'):
-                    text('No results available')
+                with tag("p"):
+                    text("No results available")
             for binary_path in sorted(b_exp.keys()):
-                with tag('div', klass='section'):
-                    with tag('h3', klass='binary-title'):
+                with tag("div", klass="section"):
+                    with tag("h3", klass="binary-title"):
                         text(binary_path)
                     binary_data = b_exp[binary_path]
 
-                    #with tag('pre'):
+                    # with tag('pre'):
                     #    strings = binary_data.get("strings", [])
                     #    if strings:
                     #        for s in strings:
@@ -142,64 +141,68 @@ def generate_PDF(b_exp):
                     #    else:
                     #        text("No data")
 
-
-                    with tag('div', klass='result-block'):
-                        with tag('div', klass='result-label'):
-                            text('Flags:')
-                        with tag('pre'):
+                    with tag("div", klass="result-block"):
+                        with tag("div", klass="result-label"):
+                            text("Flags:")
+                        with tag("pre"):
                             flags = binary_data.get("flags", [])
                             if not flags:
                                 text("No results available")
                             elif isinstance(flags, list):
                                 for flag in flags[:20]:
                                     if isinstance(flag, dict):
-                                        display = flag.get('string', 'N/A') + flag.get('severity', 'N/A')
+                                        display = flag.get("string", "N/A") + flag.get(
+                                            "severity", "N/A"
+                                        )
                                         if display:
-                                            text(f"{flag.get('string', 'N/A')} ({flag.get('severity', 'N/A')})\n")
+                                            text(
+                                                f"{flag.get('string', 'N/A')} ({flag.get('severity', 'N/A')})\n"
+                                            )
                                         else:
                                             text(flags if flags else "No data")
 
-                    with tag('div', klass='result-block'):
-                        with tag('div', klass='result-label'):
-                            text('Strace:')
-                        with tag('pre'):
+                    with tag("div", klass="result-block"):
+                        with tag("div", klass="result-label"):
+                            text("Strace:")
+                        with tag("pre"):
                             strace = binary_data.get("strace", [])
                             if not strace:
                                 text("No results available")
                             elif isinstance(strace, list):
-                                text('\n'.join(str(s) for s in strace[:50]))
+                                text("\n".join(str(s) for s in strace[:50]))
                             else:
                                 text(strace if strace else "No data")
 
-                    with tag('div', klass='result-block'):
-                        with tag('div', klass='result-label'):
-                            text('GTFOBins Matches:')
-                        with tag('pre'):
+                    with tag("div", klass="result-block"):
+                        with tag("div", klass="result-label"):
+                            text("GTFOBins Matches:")
+                        with tag("pre"):
                             gtfo = binary_data.get("gtfo", [])
                             if not gtfo:
                                 text("No results available")
                             elif isinstance(gtfo, list):
-                                text('\n'.join(str(s) for s in gtfo[:50]))
+                                text("\n".join(str(s) for s in gtfo[:50]))
                             else:
                                 text(gtfo if gtfo else "No data")
 
-                    with tag('div', klass='result-block'):
-                        with tag('div', klass='result-label'):
-                            text('Timeouts:')
-                        with tag('pre'):
+                    with tag("div", klass="result-block"):
+                        with tag("div", klass="result-label"):
+                            text("Timeouts:")
+                        with tag("pre"):
                             timeouts = binary_data.get("timeouts", [])
                             if not timeouts:
                                 text("No results available")
                             elif isinstance(timeouts, list):
-                                text('\n'.join(str(t) for t in timeouts[:50]))
+                                text("\n".join(str(t) for t in timeouts[:50]))
                             else:
                                 text(timeouts if timeouts else "No data")
 
     return doc.getvalue()
 
+
 def generate_report(b_exp, default_binary=None):
     try:
-        with open('art.txt', 'r') as f:
+        with open("art.txt", "r") as f:
             ascii_art = f.read()
     except FileNotFoundError:
         ascii_art = ""
@@ -209,17 +212,19 @@ def generate_report(b_exp, default_binary=None):
     if default_binary is None and b_exp:
         default_binary = next(iter(b_exp.keys()))
 
-    with tag('html', lang='en'):
-        with tag('head'):
-            with tag('meta', charset='utf-8'):
+    with tag("html", lang="en"):
+        with tag("head"):
+            with tag("meta", charset="utf-8"):
                 pass
-            with tag('meta', name='viewport', content='width=device-width, initial-scale=1.0'):
+            with tag(
+                "meta", name="viewport", content="width=device-width, initial-scale=1.0"
+            ):
                 pass
-            with tag('title'):
-                text('Slippery Penguin Report')
+            with tag("title"):
+                text("Slippery Penguin Report")
 
-            with tag('style'):
-                encoded = ascii_art.replace('\n', '\\A').replace('"', '\\"')
+            with tag("style"):
+                encoded = ascii_art.replace("\n", "\\A").replace('"', '\\"')
                 doc.asis(f'''
                       body::before {{
                         content: "{encoded}";
@@ -281,32 +286,31 @@ def generate_report(b_exp, default_binary=None):
                     }}
                 ''')
 
-        with tag('body'):
+        with tag("body"):
             # Header
-            with tag('div', klass='header'):
-                with tag('h1'):
-                    text('Slippery Penguin')
-                with tag('p'):
-                    text('Results Reporting')
+            with tag("div", klass="header"):
+                with tag("h1"):
+                    text("Slippery Penguin")
+                with tag("p"):
+                    text("Results Reporting")
 
             # Dropdown
-            with tag('h2'):
-                text('Binaries:')
-            with tag('select', id='binary-select'):
+            with tag("h2"):
+                text("Binaries:")
+            with tag("select", id="binary-select"):
                 for binary_path in sorted(b_exp.keys()):
-                    display = binary_path.split('/')[-1]
-                    selected = 'selected' if binary_path == default_binary else ''
-                    with tag('option', value=binary_path, klass=selected):
+                    display = binary_path.split("/")[-1]
+                    selected = "selected" if binary_path == default_binary else ""
+                    with tag("option", value=binary_path, klass=selected):
                         text(f"{display}")
 
-
-            with tag('div', id='results'):
+            with tag("div", id="results"):
                 pass
-            with tag('script', id='all-data', type='application/json'):
+            with tag("script", id="all-data", type="application/json"):
                 doc.asis(json.dumps(b_exp))
 
             # JavaScript
-            js_code = '''
+            js_code = """
             <script>
             (function() {
                 const select = document.getElementById('binary-select');
@@ -347,8 +351,7 @@ def generate_report(b_exp, default_binary=None):
                 render(select.value);
             })();
             </script>
-            '''
+            """
             doc.asis(js_code)
 
     return doc.getvalue()
-

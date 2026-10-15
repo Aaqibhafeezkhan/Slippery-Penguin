@@ -1,29 +1,68 @@
-import signal, subprocess,os, json, argparse, sys, shutil, urllib.request, tempfile,hashlib,asyncio,traceback
+import signal, subprocess, os, json, argparse, sys, shutil, urllib.request, tempfile, hashlib, asyncio, traceback
 import tarfile, urllib.error
 from datetime import datetime
 from rich.console import Console
 from htmlgenerator import generate_report, generate_PDF
 from weasyprint import HTML
+
 console = Console()
+# Version
+__version__ = "2.3.6"
+UPDATE_URL = "https://eclecticelectronics.fly.dev/api/check-update/"
 # art is from https://www.asciiart.eu/art/2e5ef0982cbcf027
-with open('art.txt', 'r') as file:
+with open("art.txt", "r") as file:
     content = file.read()
     console.print(f"[green]{content}[/green]")
 
 # Setting up argparse
 parser = argparse.ArgumentParser("SUID enumeration and vulnerability scanning")
-parser.add_argument("--output", "-o", choices=["terminal", "logs","both"], default="terminal", help="Output mode")
-parser.add_argument("--storage", "-s", type=str, default="./logs", help="Log storage directory")
-parser.add_argument("--update-gtfobins", "-upgt", action="store_true", help="Download/update GTFOBins database")
-parser.add_argument("--del-logs", "-dl", choices=["run", "close"],  default=None, help="Delete Logs")
-parser.add_argument("--timeout", "-t", action="store_true", help="Used for changing timeout var, default is 10")
-parser.add_argument("--cleanup", "-c", action="store_true", help="Deletes all data and uninstalls the program")
-parser.add_argument("--update", "-u", choices=["run", "close"], help="Download and install the latest version")
-parser.add_argument("--check", "-chk", action="store_true", help="Check the current version")
+parser.add_argument(
+    "--output",
+    "-o",
+    choices=["terminal", "logs", "both"],
+    default="terminal",
+    help="Output mode",
+)
+parser.add_argument(
+    "--storage", "-s", type=str, default="./logs", help="Log storage directory"
+)
+parser.add_argument(
+    "--update-gtfobins",
+    "-upgt",
+    action="store_true",
+    help="Download/update GTFOBins database",
+)
+parser.add_argument(
+    "--del-logs", "-dl", choices=["run", "close"], default=None, help="Delete Logs"
+)
+parser.add_argument(
+    "--timeout",
+    "-t",
+    action="store_true",
+    help="Used for changing timeout var, default is 10",
+)
+parser.add_argument(
+    "--cleanup",
+    "-c",
+    action="store_true",
+    help="Deletes all data and uninstalls the program",
+)
+parser.add_argument(
+    "--update",
+    "-u",
+    choices=["run", "close"],
+    help="Download and install the latest version",
+)
+parser.add_argument(
+    "--check", "-chk", action="store_true", help="Check the current version"
+)
 parser.add_argument("--manual", "-man", action="store_true", help="Manual")
-parser.add_argument("--htmlreport", "-hr", action="store_true", help="Save results in HTML file")
-parser.add_argument("--pdfreport", "-pdf", action="store_true", help="Save results in PDF file")
-
+parser.add_argument(
+    "--htmlreport", "-hr", action="store_true", help="Save results in HTML file"
+)
+parser.add_argument(
+    "--pdfreport", "-pdf", action="store_true", help="Save results in PDF file"
+)
 
 
 # Globals for passing data between functions
@@ -50,7 +89,9 @@ try:
     from yattag import Doc
     from weasyprint import HTML
 except ImportError as e:
-    console.print(f"[red]Missing dependency: {e.name}. Run: pip install -r requirements.txt[/red]")
+    console.print(
+        f"[red]Missing dependency: {e.name}. Run: pip install -r requirements.txt[/red]"
+    )
     sys.exit(1)
 
 GTFO_FILE = os.path.join("gtfobins.json")
@@ -111,23 +152,29 @@ if args.cleanup:
     sys.exit(0)
 
 
-
 # Help!
 
 if args.manual:
-    console.print("[cyan]If this is a fresh download, run -update-gtfobins for the most up to date data.[/cyan]")
+    console.print(
+        "[cyan]If this is a fresh download, run -update-gtfobins for the most up to date data.[/cyan]"
+    )
     print("--output both:       Writes results in the terminal and to logs")
     print("--output terminal:   Writes results to the terminal only")
     print("--output logs:       Writes results to the logs only")
-    print("-gtfo:               Checks results against GTFOBins data, data follows output choice")
+    print(
+        "-gtfo:               Checks results against GTFOBins data, data follows output choice"
+    )
     print("-update-gtfobins:    Updates GTFOBins data from the GTFOBins API endpoint")
     print("-del-logs:           Deletes all logs that are currently stored")
     print("-timeout:            Allows the user to set the timeout value, default is 2")
     print("-help:               How you got here")
 
-    print("An example command:\npython3 slipperypenguin.py --output logs -gtfo -update-gtfo,\n" +
-          "with -update-gtfobins being optional if your data is up to date.")
+    print(
+        "An example command:\npython3 slipperypenguin.py --output logs -gtfo -update-gtfo,\n"
+        + "with -update-gtfobins being optional if your data is up to date."
+    )
     sys.exit(0)
+
 
 # Update helper functions
 def download_update(url, expected_hash):
@@ -135,7 +182,10 @@ def download_update(url, expected_hash):
     os.close(fd)
     hasher = hashlib.sha256()
     try:
-        with urllib.request.urlopen(url, timeout=10) as resp, open(tmp_path, "wb") as out:
+        with (
+            urllib.request.urlopen(url, timeout=10) as resp,
+            open(tmp_path, "wb") as out,
+        ):
             while chunk := resp.read(65536):
                 out.write(chunk)
                 hasher.update(chunk)
@@ -145,6 +195,7 @@ def download_update(url, expected_hash):
     except Exception as e:
         console.print(f"[red]{e}[/red]")
 
+
 def extract_update(tmp_path):
     extract_dir = tempfile.mkdtemp()
     with tarfile.open(tmp_path, "r:gz") as tar:
@@ -153,10 +204,9 @@ def extract_update(tmp_path):
         extracted_names = os.listdir(extract_dir)
         for name in required:
             if name not in extracted_names:
-                raise RuntimeError(
-                    "Incomplete package, download aborted"
-                )
+                raise RuntimeError("Incomplete package, download aborted")
                 return extract_dir
+
 
 def install_update(extract_dir):
     install_root = os.path.dirname(os.path.abspath(__file__))
@@ -170,17 +220,11 @@ def install_update(extract_dir):
 # Updating gtfobins logic
 try:
     if args.update_gtfobins:
-        subprocess.run([
-            "curl",
-            "https://gtfobins.org/api.json",
-            "-o",
-            GTFO_FILE
-        ])
+        subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
         print(f"GTFOBins updated at {GTFO_FILE}")
         sys.exit(0)
 except Exception as e:
     console.print(f"[red]Updating GTFObins failed, {e}[/red]")
-
 
 
 # Checking for available updates
@@ -198,22 +242,21 @@ if latest == __version__:
 if latest < __version__:
     pass
 else:
-    console.print(f"[magenta] Update available: {latest} (you are running {__version__}) [/magenta]")
-    console.print("[green] Would you like to update, or stay on the current version? (y to update): [/green]")
+    console.print(
+        f"[magenta] Update available: {latest} (you are running {__version__}) [/magenta]"
+    )
+    console.print(
+        "[green] Would you like to update, or stay on the current version? (y to update): [/green]"
+    )
     console.print("[magenta](y/n)[/magenta]")
     usr_in = input()
     usr_in = usr_in.lower()
-    if (usr_in == "n"):
+    if usr_in == "n":
         pass
     else:
         try:
             # Updating gtfobins logic
-            subprocess.run([
-                "curl",
-                "https://gtfobins.org/api.json",
-                "-o",
-                GTFO_FILE
-            ])
+            subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
             print(f"GTFOBins updated at {GTFO_FILE}")
         except Exception as e:
             console.print(f"[red]Could not update GTFOBins, {e}[/red]")
@@ -247,7 +290,6 @@ if os.path.exists(GTFO_FILE) and os.path.getsize(GTFO_FILE) > 0:
         gtfo_data = json.load(f)
 
 
-
 # RUN_ID and RUN_DIR are for the individual filesaves in the dirs
 RUN_ID = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 RUN_DIR = os.path.join(STORAGE_ROOT, RUN_ID)
@@ -264,11 +306,7 @@ GTFO_OUT = os.path.join(RUN_DIR, "gfto-out.json")
 HTML_OUT = os.path.join(RUN_DIR, "html-out.html")
 
 
-
 border = "-----"
-
-
-
 
 
 if os.path.exists(FIND_OUT):
@@ -280,12 +318,7 @@ if os.path.exists(FIND_OUT):
 if args.update in ("run", "close"):
     try:
         # Updating gtfobins logic
-        subprocess.run([
-            "curl",
-            "https://gtfobins.org/api.json",
-            "-o",
-            GTFO_FILE
-        ])
+        subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
         print(f"GTFOBins updated at {GTFO_FILE}")
     except Exception as e:
         console.print(f"[red]Could not update GTFOBins, {e}[/red]")
@@ -312,9 +345,10 @@ if args.update in ("run", "close"):
         exit(0)
 
 
-
 # Enumerates SUIDs and checking capabilites
-result = subprocess.run( ["find", "/", "-perm", "-4000", "-type", "f"], capture_output=True, text=True)
+result = subprocess.run(
+    ["find", "/", "-perm", "-4000", "-type", "f"], capture_output=True, text=True
+)
 agg_result = result.stdout.splitlines()
 find_append["results"] = agg_result
 if args.output in ("terminal", "both"):
@@ -329,7 +363,7 @@ if args.output in ("logs", "both"):
 
 # loading the flags from json
 try:
-    with open("flags.json", 'r') as file:
+    with open("flags.json", "r") as file:
         flags = json.load(file)
 except FileNotFoundError as e:
     console.print("[red]Flags load failure: {e}[/red]")
@@ -352,20 +386,17 @@ lock = asyncio.Lock()
 semaphore = asyncio.Semaphore(5)
 
 
-
 async def append(target: dict, b, data):
     async with semaphore:
         async with lock:
             target[b] = data
 
 
-
-
 # Scans
 # This is for running the strings scan on a given binary
 async def strings_scan(b):
     # Debug
-    #if args.output in ("logs"):
+    # if args.output in ("logs"):
     #    print("strings scan started")
     global strings_append
     global timeout_append
@@ -379,7 +410,9 @@ async def strings_scan(b):
             stdin=asyncio.subprocess.DEVNULL,
         )
         try:
-            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout_var)
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(), timeout=timeout_var
+            )
             # strings_append[b] = stdout.decode().splitlines()
             await append(strings_append, b, stdout.decode().splitlines())
         except TimeoutError:
@@ -394,12 +427,18 @@ async def strings_scan(b):
         console.print(f"[red]strings_scan failure: {e}[/red]")
         traceback.print_exc()
 
+
 # strace scanning
 async def strace_scan(b):
     global strace_append, timeout_append
     try:
         process = await asyncio.create_subprocess_exec(
-            "timeout", str(timeout_var), "strace", "-e", "execve", b,
+            "timeout",
+            str(timeout_var),
+            "strace",
+            "-e",
+            "execve",
+            b,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             stdin=asyncio.subprocess.DEVNULL,
@@ -422,7 +461,8 @@ async def strace_scan(b):
         console.print(f"[red]strace_scan failure: {e}[/red]")
         traceback.print_exc()
 
-#gtfobins comp
+
+# gtfobins comp
 async def gtfo_scan(b):
     global gtfo_append
     try:
@@ -440,6 +480,7 @@ async def gtfo_scan(b):
         console.print(f"[red]gtfo comp failure: {e}[/red]")
         traceback.print_exc()
 
+
 # getcap scan
 async def get_scan():
     global getcap_append
@@ -451,24 +492,30 @@ async def get_scan():
         if flag["string"] in strings_append.get(flag, {}):
             try:
                 result = await asyncio.create_subprocess_exec(
-                "getcap",
-                "-r",
+                    "getcap",
+                    "-r",
                     flag,
                     stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
+                    stderr=asyncio.subprocess.PIPE,
                 )
                 try:
-                    stdout, stderr = await asyncio.wait_for(result.communicate(), timeout=timeout_var)
+                    stdout, stderr = await asyncio.wait_for(
+                        result.communicate(), timeout=timeout_var
+                    )
                     # await append(getcap_append, dt, stdout.decode().splitlines())
                     # getcap_append[dt] = stdout.decode().splitlines()
                     try:
                         if stdout:
                             cap_append.setdefault(dt, [])
-                            cap_item = [f"Cap check {dt}: {result.stdout.decode().splitlines()}"]
+                            cap_item = [
+                                f"Cap check {dt}: {result.stdout.decode().splitlines()}"
+                            ]
                             await append(getcap_append, dt, cap_item)
                             # cap_append[dt].append(cap_item)
                         if args.output in ("terminal", "both"):
-                            console.print(f"\n[yellow]getcap: [/yellow][green]{cap_append}[/green]")
+                            console.print(
+                                f"\n[yellow]getcap: [/yellow][green]{cap_append}[/green]"
+                            )
                     except Exception as e:
                         console.print(f"[red]get_scan failure: {e}[/red]")
                         traceback.print_exc()
@@ -478,7 +525,9 @@ async def get_scan():
                 console.print(f"getcap flag append failure {e}")
                 traceback.print_exc()
             else:
-                console.print("[magenta]No strings matches found for getcap scan[/magenta]")
+                console.print(
+                    "[magenta]No strings matches found for getcap scan[/magenta]"
+                )
             try:
                 await result.wait()
             except (asyncio.CancelledError, Exception) as e:
@@ -496,14 +545,13 @@ async def timeouts(b):
                 console.print(f"\n[green] {t}[/green]")
         if args.output in ("logs", "both"):
             with open(TIMEOUT_OUT, "w") as f:
-                    json.dump(timeout_append, f)
+                json.dump(timeout_append, f)
     except Exception as e:
         console.print(f"[red]timeouts failure: {e}[/red]")
         traceback.print_exc()
 
 
 # File writing
-
 
 
 # strace results
@@ -518,13 +566,16 @@ def strace_write(b):
         console.print(f"[red]strace write failure: {e}[/red]")
         traceback.print_exc()
 
+
 # strings results
 def strings_write(b):
     passer = {}
     global strings_append
     try:
         if args.output in ("terminal", "both"):
-            console.print(f"[yellow]Strings Found for [/yellow][magenta] {b}:[/magenta] ")
+            console.print(
+                f"[yellow]Strings Found for [/yellow][magenta] {b}:[/magenta] "
+            )
             for string in strings_append.get(b, {}):
                 console.print(f"    [green]{string}[/green]")
         if args.output in ("logs", "both"):
@@ -534,18 +585,21 @@ def strings_write(b):
             else:
                 passer = {}
             passer[b] = strings_append.get(b, {})
-            with open(STR_OUT, "w", encoding='utf-8') as f:
+            with open(STR_OUT, "w", encoding="utf-8") as f:
                 json.dump(passer, f)
     except Exception as e:
         console.print(f"[red]strings write failure: {e}[/red]")
         traceback.print_exc()
         pass
 
+
 # flags writing
+
 
 def flags_write_print():
     global flags_append
     global strings_append
+
 
 # flags writing
 async def flags_write(b):
@@ -559,43 +613,46 @@ async def flags_write(b):
                     appendItem = {
                         "string": flag["string"],
                         "severity": flag["severity"],
-                        "context": flag.get("context", "")
+                        "context": flag.get("context", ""),
                     }
                     flags_append[b].append(appendItem)
 
         if args.output in ("logs", "both"):
-            with open("flags.json", 'w') as file:
+            with open("flags.json", "w") as file:
                 json.dump(flags_append, file)
     except Exception as e:
         console.print(f"[red]Flags dump failure: {e}[/red]")
         traceback.print_exc()
+
 
 # getcap results writing
 def getcap_write(b):
     global cap_append
     try:
         if args.output in ("logs", "both"):
-            with open(CAP_OUT, "w", encoding='utf-8') as f:
+            with open(CAP_OUT, "w", encoding="utf-8") as f:
                 json.dump(cap_append, f)
     except Exception as e:
         console.print(f"[red]gtfo error: {e}[/red]")
         traceback.print_exc()
         pass
 
+
 # gtfobins results writing
 def gtfo_write(b):
     global gtfo_append
     try:
         if args.output in ("logs", "both"):
-            with open(GTFO_OUT, "w", encoding='utf-8') as f:
+            with open(GTFO_OUT, "w", encoding="utf-8") as f:
                 json.dump(gtfo_append, f)
     except Exception as e:
         console.print(f"[red]gtfo write error : {e}[/red]")
 
+
 async def main():
     global b_exp
     global agg_result
-    with (console.status("[blue]Sliding Around... [/blue]")):
+    with console.status("[blue]Sliding Around... [/blue]"):
         try:
             for binary in agg_result:
                 if not binary.startswith("/usr/bin"):
@@ -607,7 +664,7 @@ async def main():
                         strace_scan(binary),
                         gtfo_scan(binary),
                         timeouts(binary),
-                        return_exceptions=True
+                        return_exceptions=True,
                     )
 
                     b_exp.setdefault(binary, {})
@@ -626,7 +683,7 @@ async def main():
                     strace_write(binary)
                     strings_write(binary)
                     await get_scan()
-                except (Exception) as e:
+                except Exception as e:
                     console.print(f"[red]write failure: {e}[/red]")
                     traceback.print_exc()
                     pass
@@ -636,17 +693,18 @@ async def main():
 
         if args.htmlreport and b_exp:
             html = generate_report(b_exp, default_binary=next(iter(b_exp.keys()), None))
-            with open(HTML_OUT, 'w', encoding='utf-8') as f:
+            with open(HTML_OUT, "w", encoding="utf-8") as f:
                 f.write(html)
         if args.pdfreport:
             pdf = generate_PDF(b_exp)
             HTML(string=pdf).write_pdf(f"{RUN_DIR}/report_{RUN_ID}.pdf")
 
-
         try:
             await timeouts(binary)
-        except (Exception) as e:
+        except Exception as e:
             console.print({e})
             return 0
+
+
 asyncio.run(main())
 console.print(f"[bold bright_green]Done![/bold bright_green]")
