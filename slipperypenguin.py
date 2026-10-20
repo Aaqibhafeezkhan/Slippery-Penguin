@@ -11,7 +11,7 @@ except ImportError:
     updatehelpers = None
 console = Console()
 # Version
-__version__ = "2.3.8"
+__version__ = "2.3.9"
 # UPDATE_URL now lives in updatehelpers.py - the module owns the endpoint.
 # art is from https://www.asciiart.eu/art/2e5ef0982cbcf027
 with open("art.txt", "r") as file:

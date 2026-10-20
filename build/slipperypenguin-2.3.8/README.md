@@ -12,7 +12,7 @@ Use responsibly and in accordance with all applicable local, state, and federal 
 
 Slippery Penguin is a security auditing tool designed to enumerate SUID binaries, scan for dangerous capabilities, and cross-reference findings against the GTFOBins database to identify potential privilege escalation vectors.
 
-
+Now featured in the Xerj Corpus! Check Xerj out at https://github.com/xerj-org/xerj
 
 ##  Features
 
@@ -56,8 +56,8 @@ python3 slipperypenguin.py --update-gtfobins
 ```
 Downloading the .tar.gz from www.eclecticelectrionics.com (https://github.com/stlynnxx/EclecticElectronics)
 ```bash
-curl -L https://eclecticelectronics.fly.dev/api/download/2.3.6 -o slipperypenguin-2.3.6.tar.gz
-sha256sum slipperypenguin-2.3.6.tar.gz
+curl -L https://eclecticelectronics.fly.dev/api/download/2.3.7 -o slipperypenguin-2.3.7.tar.gz
+sha256sum slipperypenguin-2.3.7.tar.gz
 
 pip install -r requirements.txt
 
