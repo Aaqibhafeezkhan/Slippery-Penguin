@@ -5,10 +5,14 @@ from rich.console import Console
 from htmlgenerator import generate_report, generate_PDF
 from weasyprint import HTML
 
+try:
+    import updatehelpers
+except ImportError:
+    updatehelpers = None
 console = Console()
 # Version
 __version__ = "2.3.8"
-UPDATE_URL = "https://eclecticelectronics.fly.dev/api/check-update/"
+# UPDATE_URL now lives in updatehelpers.py - the module owns the endpoint.
 # art is from https://www.asciiart.eu/art/2e5ef0982cbcf027
 with open("art.txt", "r") as file:
     content = file.read()
@@ -176,47 +180,6 @@ if args.manual:
     sys.exit(0)
 
 
-# Update helper functions
-def download_update(url, expected_hash):
-    fd, tmp_path = tempfile.mkstemp(suffix=".tar.gz")
-    os.close(fd)
-    hasher = hashlib.sha256()
-    try:
-        with (
-            urllib.request.urlopen(url, timeout=10) as resp,
-            open(tmp_path, "wb") as out,
-        ):
-            while chunk := resp.read(65536):
-                out.write(chunk)
-                hasher.update(chunk)
-            if hasher.hexdigest() != expected_hash:
-                os.unlink(tmp_path)
-                raise RuntimeError("Checksum mismatch- download aborted")
-    except Exception as e:
-        console.print(f"[red]{e}[/red]")
-
-
-def extract_update(tmp_path):
-    extract_dir = tempfile.mkdtemp()
-    with tarfile.open(tmp_path, "r:gz") as tar:
-        tar.extractall(extract_dir, filter="data")
-        required = ["slipperypenguin.py", "art.txt", "flags.json"]
-        extracted_names = os.listdir(extract_dir)
-        for name in required:
-            if name not in extracted_names:
-                raise RuntimeError("Incomplete package, download aborted")
-                return extract_dir
-
-
-def install_update(extract_dir):
-    install_root = os.path.dirname(os.path.abspath(__file__))
-    for fname in os.listdir(extract_dir):
-        src = os.path.join(extract_dir, fname)
-        dst = os.path.join(install_root, fname)
-        os.replace(src, dst)
-        shutil.rmtree(extract_dir)
-
-
 # Updating gtfobins logic
 try:
     if args.update_gtfobins:
@@ -227,58 +190,130 @@ except Exception as e:
     console.print(f"[red]Updating GTFObins failed, {e}[/red]")
 
 
-# Checking for available updates
-try:
-    with urllib.request.urlopen(UPDATE_URL + __version__, timeout=10) as resp:
-        update_info = json.loads(resp.read().decode())
-except (urllib.error.URLError, json.JSONDecodeError) as e:
-    console.print(f"[red] Could not reach update server: {e} [/red]")
-    sys.exit(1)
-latest = update_info.get("latest", "")
-if latest == __version__:
-    pass
+# ---------------------------------------------------------------- updates
+# Explicit --update: no confirmation prompt. "run" continues into the scan
+# afterwards (with the old code, still in memory), "close" exits.
+if args.update in ("run", "close"):
+    if updatehelpers is None:
+        console.print("[red]Error: updatehelpers.py not found next to slipperypenguin.py[/red]")
+        sys.exit(1)
 
-# This is for those of us on the dev branch, so we don't have to turn down the update everytime we run the program
-if latest < __version__:
-    pass
-else:
-    console.print(
-        f"[magenta] Update available: {latest} (you are running {__version__}) [/magenta]"
-    )
-    console.print(
-        "[green] Would you like to update, or stay on the current version? (y to update): [/green]"
-    )
-    console.print("[magenta](y/n)[/magenta]")
-    usr_in = input()
-    usr_in = usr_in.lower()
-    if usr_in == "n":
-        pass
+    update_info = updatehelpers.check_for_update(__version__)
+    if update_info is None:
+        sys.exit(1)
+
+    latest = str(update_info.get("latest", "")).strip()
+
+    # Numeric comparison. The old `latest < __version__` ranked
+    # '2.3.10' below '2.3.9' because strings compare per-character.
+    # Dev branch running ahead of the published release: nothing to do.
+    if updatehelpers.parse_version(latest) <= updatehelpers.parse_version(__version__):
+        console.print(f"[purple]No update available (running {__version__}).[/purple]")
     else:
+        console.print(f"[magenta]Update available: {latest} (you are running {__version__})[/magenta]")
+
+        # GTFOBins refresh, as before
         try:
-            # Updating gtfobins logic
             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
-            print(f"GTFOBins updated at {GTFO_FILE}")
+            console.print(f"[green]GTFOBins updated at {GTFO_FILE}[/green]")
         except Exception as e:
             console.print(f"[red]Could not update GTFOBins, {e}[/red]")
-        try:
-            download_update(update_info["url"], latest)
-        except Exception as e:
-            if os.path.exists(tmp_path):
-                os.unlink(tmp_path)
-                raise e
 
-        try:
-            extract_dir = extract_update(update_info["url"])
+        url = update_info.get("url")
+        sha = update_info.get("sha256")
+        if not url or not sha:
+            console.print("[red]Update server supplied no 'url'/'sha256'; aborting.[/red]")
+            sys.exit(1)
 
-        except Exception:
-            console.print(f"[red]{Exception}[/red]")
-            exit(-1)
-        try:
-            install_update(extract_dir)
-        except Exception:
-            console.print(f"[red]{Exception}[/red]")
-            exit(-1)
+        tarball = updatehelpers.download_release(url, sha)
+        if tarball is None:
+            sys.exit(1)
+
+        extract_dir = updatehelpers.extract_release(tarball)
+        if extract_dir is None:
+            sys.exit(1)
+
+        if not updatehelpers.install_release(extract_dir):
+            console.print("[red]Package contained no recognised files; nothing replaced.[/red]")
+            sys.exit(1)
+
         console.print("[green]Update Successful![/green]")
+
+    if args.update == "close":
+        sys.exit(0)
+    console.print("[yellow]Continuing with the currently loaded version; restart to run the new code.[/yellow]")
+
+
+# --check: report status only, no install.
+if args.check:
+    if updatehelpers is None:
+        console.print("[red]Error: updatehelpers.py not found next to slipperypenguin.py[/red]")
+        sys.exit(1)
+
+    update_info = updatehelpers.check_for_update(__version__)
+    if update_info is None:
+        sys.exit(1)
+
+    latest = str(update_info.get("latest", "")).strip()
+    if updatehelpers.parse_version(latest) > updatehelpers.parse_version(__version__):
+        console.print(f"[magenta]Update available: {latest} (you are running {__version__})[/magenta]")
+    else:
+        # Covers both "equal" and "dev build ahead of the published release".
+        console.print(f"[green]No update available ({__version__}).[/green]")
+    sys.exit(0)
+
+
+# Startup update check (interactive). Skipped when --update was passed,
+# since the explicit update above already ran.
+if args.update is None and updatehelpers is not None:
+    update_info = updatehelpers.check_for_update(__version__)
+    if update_info is None:
+        # Original behaviour on an unreachable server was to abort; kept.
+        sys.exit(1)
+
+    latest = str(update_info.get("latest", "")).strip()
+
+    # Numeric comparison. Dev branch (running ahead of the published
+    # release) and matching versions both fall through silently -
+    # same as the old `if latest < __version__: pass` and the
+    # `if latest == __version__: pass`, but now '2.3.10' > '2.3.9'.
+    if updatehelpers.parse_version(latest) > updatehelpers.parse_version(__version__):
+        console.print(
+            f"[magenta] Update available: {latest} (you are running {__version__}) [/magenta]"
+        )
+        console.print(
+            "[green] Would you like to update, or stay on the current version? (y to update): [/green]"
+        )
+        console.print("[magenta](y/n)[/magenta]")
+        usr_in = input()
+        usr_in = usr_in.lower()
+        if usr_in == "n":
+            pass
+        else:
+            # Updating gtfobins logic
+            try:
+                subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+                print(f"GTFOBins updated at {GTFO_FILE}")
+            except Exception as e:
+                console.print(f"[red]Could not update GTFOBins, {e}[/red]")
+
+            url = update_info.get("url")
+            sha = update_info.get("sha256")
+            if not url or not sha:
+                console.print("[red]Update server supplied no 'url'/'sha256'.[/red]")
+            else:
+                tarball = updatehelpers.download_release(url, sha)
+                if tarball is not None:
+                    extract_dir = updatehelpers.extract_release(tarball)
+                    if extract_dir is not None:
+                        if updatehelpers.install_release(extract_dir):
+                            console.print("[green]Update Successful![/green]")
+                            console.print("[yellow]Restart to run the new version.[/yellow]")
+                        else:
+                            console.print("[red]Package contained no recognised files; nothing replaced.[/red]")
+elif updatehelpers is None:
+    console.print("[yellow]updatehelpers.py not found; skipping update check.[/yellow]")
+
 
 if args.timeout:
     timeout_var = int(input(f"[yellow]Enter custom timeout value: [/yellow]"))
@@ -312,37 +347,6 @@ border = "-----"
 if os.path.exists(FIND_OUT):
     with open(FIND_OUT, "r") as f:
         find_append = json.loads(f.read())
-
-
-# Updating logic helper functions
-if args.update in ("run", "close"):
-    try:
-        # Updating gtfobins logic
-        subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
-        print(f"GTFOBins updated at {GTFO_FILE}")
-    except Exception as e:
-        console.print(f"[red]Could not update GTFOBins, {e}[/red]")
-    try:
-        download_update(update_info["url"], latest)
-    except Exception as e:
-        if os.path.exists(tmp_path):
-            os.unlink(tmp_path)
-        raise e
-    try:
-        extract_dir = extract_update(update_info["url"])
-    except Exception:
-        console.print(f"[red]{Exception}[/red]")
-        exit(-1)
-    try:
-        install_update(extract_dir)
-    except Exception:
-        console.print(f"[red]{Exception}[/red]")
-        exit(-1)
-    console.print("[green]Update Successful![/green]")
-    if args.update in ("run"):
-        pass
-    if args.update in ("close"):
-        exit(0)
 
 
 # Enumerates SUIDs and checking capabilites
