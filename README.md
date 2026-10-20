@@ -12,6 +12,8 @@ Use responsibly and in accordance with all applicable local, state, and federal 
 
 Slippery Penguin is a security auditing tool designed to enumerate SUID binaries, scan for dangerous capabilities, and cross-reference findings against the GTFOBins database to identify potential privilege escalation vectors.
 
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/stlynnxx/badge.svg)](https://hub.xerj.org/contributors/stlynnxx)
+
 Now featured in the Xerj Corpus! Check Xerj out at https://github.com/xerj-org/xerj
 
 ##  Features
