@@ -1,0 +1,3150 @@
+I001 [*] Import block is un-sorted or un-formatted
+ --> build/slipperypenguin-2.3.7/htmlgenerator.py:1:1
+  |
+1 | / from yattag import Doc
+2 | | from rich.console import Console
+3 | | import json
+  | |___________^
+help: Organize imports
+  |
+  - from yattag import Doc
+  - from rich.console import Console
+1 | import json
+2 |
+3 + from rich.console import Console
+4 + from yattag import Doc
+5 +
+6 |
+  |
+
+F401 [*] `rich.console.Console` imported but unused
+ --> build/slipperypenguin-2.3.7/htmlgenerator.py:2:26
+  |
+1 | from yattag import Doc
+2 | from rich.console import Console
+  |                          ^^^^^^^
+3 | import json
+  |
+help: Remove unused import: `rich.console.Console`
+  |
+1 | from yattag import Doc
+  - from rich.console import Console
+2 | import json
+  |
+
+F841 Local variable `ascii_art` is assigned to but never used
+  --> build/slipperypenguin-2.3.7/htmlgenerator.py:11:9
+   |
+ 9 |             ascii_art = f.read()
+10 |     except FileNotFoundError:
+11 |         ascii_art = ""
+   |         ^^^^^^^^^
+12 |     doc, tag, text = Doc().tagtext()
+13 |     with tag("html", lang="en"):
+   |
+help: Remove assignment to unused variable `ascii_art`
+   |
+10 |     except FileNotFoundError:
+   -         ascii_art = ""
+11 +         pass
+12 |     doc, tag, text = Doc().tagtext()
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+F541 [*] f-string without any placeholders
+   --> build/slipperypenguin-2.3.7/htmlgenerator.py:30:26
+    |
+ 29 |               with tag("style"):
+ 30 |                   doc.asis(f"""
+    |  __________________________^
+ 31 | |                     body::before {{
+ 32 | |                         position: fixed;
+ 33 | |                         bottom: 5px;
+ 34 | |                         top: 50%;
+ 35 | |                         left: 50%;
+ 36 | |                         transform: translate(-50%, 0);
+ 37 | |                         font-family: monospace;
+ 38 | |                         font-size: 10px;
+ 39 | |                         line-height: 8px;
+ 40 | |                         color: rgba(0, 100, 0, 0.05);  
+ 41 | |                         white-space: pre;
+ 42 | |                         z-index: 0;
+ 43 | |                         pointer-events: none;
+ 44 | |                         width: 100%;      
+ 45 | |                         text-align: center; 
+ 46 | |                     }}
+ 47 | |
+ 48 | |                     body {{
+ 49 | |                         margin: 10;
+ 50 | |                         padding: 20px;
+ 51 | |                         background: #1a1a1a;
+ 52 | |                         color: #00ff00;
+ 53 | |                     }}
+ 54 | |
+ 55 | |                     .header {{
+ 56 | |                         text-align: center;
+ 57 | |                         border: 2px solid green;
+ 58 | |                         border-radius: 10px;
+ 59 | |                         padding: 20px;
+ 60 | |                         margin-bottom: 20px;
+ 61 | |                         background: black;
+ 62 | |                         page-break-after: avoid;
+ 63 | |                     }}
+ 64 | |                     .section {{
+ 65 | |                         margin: 0;         
+ 66 | |                         padding: 8px;    
+ 67 | |                         background: #000;
+ 68 | |                         border-left: 4px solid darkgreen;
+ 69 | |                         border-bottom: 4px solid darkgreen;
+ 70 | |                         border-right: 4px solid darkgreen;
+ 71 | |                         border-top: 4px solid darkgreen;
+ 72 | |                         border-left: 4px solid darkgreen;
+ 73 | |                         border-radius: 10px;
+ 74 | |                         page-break-after: always;  
+ 75 | |                         page-break-inside: avoid;
+ 76 | |                     }}
+ 77 | |
+ 78 | |                     .binary-title {{
+ 79 | |                         color: #00ff00;
+ 80 | |                         border-bottom: 1px solid #00ff00;
+ 81 | |                         padding-bottom: 8px;
+ 82 | |                         margin-top: 20px;
+ 83 | |                     }}
+ 84 | |
+ 85 | |                     .result-block {{
+ 86 | |                         margin: 5px 0;
+ 87 | |                         padding: 10px;
+ 88 | |                         background: #111;
+ 89 | |                         border-left: 1px dashed darkgreen;
+ 90 | |                         border-bottom: 1px dashed darkgreen;
+ 91 | |                         border-radius: 4px;
+ 92 | |                         page-break-inside: avoid;
+ 93 | |                     }}
+ 94 | |
+ 95 | |                     .result-label {{
+ 96 | |                         font-weight: bold;
+ 97 | |                         color: #00cc00;
+ 98 | |                         margin-bottom: 5px;
+ 99 | |                     }}
+100 | |
+101 | |                     pre {{
+102 | |                         background: #1a1a1a;
+103 | |                         color: #00ff00;
+104 | |                         padding: 10px;
+105 | |                         border-radius: 5px;
+106 | |                           
+107 | |                         overflow: hidden;   
+108 | |                         margin: 0;
+109 | |                         font-size: 10px;
+110 | |                     }}
+111 | |
+112 | |                     h1, h2, h3 {{
+113 | |                         color: #00ff00;
+114 | |                     }}
+115 | |                 """)
+    | |___________________^
+116 |
+117 |           with tag("body"):
+    |
+help: Remove extraneous `f` prefix
+    |
+29  |             with tag("style"):
+    -                 doc.asis(f"""
+    -                     body::before {{
+30  +                 doc.asis("""
+31  +                     body::before {
+32  |                         position: fixed;
+--------------------------------------------------------------------------------
+45  |                         text-align: center; 
+    -                     }}
+46  +                     }
+47  |
+    -                     body {{
+48  +                     body {
+49  |                         margin: 10;
+50  |                         padding: 20px;
+51  |                         background: #1a1a1a;
+52  |                         color: #00ff00;
+    -                     }}
+53  +                     }
+54  |
+    -                     .header {{
+55  +                     .header {
+56  |                         text-align: center;
+--------------------------------------------------------------------------------
+62  |                         page-break-after: avoid;
+    -                     }}
+    -                     .section {{
+63  +                     }
+64  +                     .section {
+65  |                         margin: 0;         
+--------------------------------------------------------------------------------
+75  |                         page-break-inside: avoid;
+    -                     }}
+76  +                     }
+77  |
+    -                     .binary-title {{
+78  +                     .binary-title {
+79  |                         color: #00ff00;
+80  |                         border-bottom: 1px solid #00ff00;
+81  |                         padding-bottom: 8px;
+82  |                         margin-top: 20px;
+    -                     }}
+83  +                     }
+84  |
+    -                     .result-block {{
+85  +                     .result-block {
+86  |                         margin: 5px 0;
+--------------------------------------------------------------------------------
+92  |                         page-break-inside: avoid;
+    -                     }}
+93  +                     }
+94  |
+    -                     .result-label {{
+95  +                     .result-label {
+96  |                         font-weight: bold;
+97  |                         color: #00cc00;
+98  |                         margin-bottom: 5px;
+    -                     }}
+99  +                     }
+100 |
+    -                     pre {{
+101 +                     pre {
+102 |                         background: #1a1a1a;
+--------------------------------------------------------------------------------
+109 |                         font-size: 10px;
+    -                     }}
+110 +                     }
+111 |
+    -                     h1, h2, h3 {{
+112 +                     h1, h2, h3 {
+113 |                         color: #00ff00;
+    -                     }}
+114 +                     }
+115 |                 """)
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> build/slipperypenguin-2.3.7/slipperypenguin.py:1:1
+  |
+1 | / import signal, subprocess, os, json, argparse, sys, shutil, urllib.request, tempfile, hashlib, asyncio, traceback
+2 | | import tarfile, urllib.error
+3 | | from datetime import datetime
+4 | | from rich.console import Console
+5 | | from htmlgenerator import generate_report, generate_PDF
+6 | | from weasyprint import HTML
+  | |___________________________^
+7 |
+8 |   console = Console()
+  |
+help: Organize imports
+   |
+   - import signal, subprocess, os, json, argparse, sys, shutil, urllib.request, tempfile, hashlib, asyncio, traceback
+   - import tarfile, urllib.error
+1  + import argparse
+2  + import asyncio
+3  + import hashlib
+4  + import json
+5  + import os
+6  + import shutil
+7  + import signal
+8  + import subprocess
+9  + import sys
+10 + import tarfile
+11 + import tempfile
+12 + import traceback
+13 + import urllib.error
+14 + import urllib.request
+15 | from datetime import datetime
+16 +
+17 | from rich.console import Console
+   - from htmlgenerator import generate_report, generate_PDF
+18 | from weasyprint import HTML
+19 |
+20 + from htmlgenerator import generate_PDF, generate_report
+21 +
+22 | console = Console()
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> build/slipperypenguin-2.3.7/slipperypenguin.py:89:5
+   |
+88 |   try:
+89 | /     from yattag import Doc
+90 | |     from weasyprint import HTML
+   | |_______________________________^
+91 |   except ImportError as e:
+92 |       console.print(
+   |
+help: Organize imports
+   |
+88 | try:
+89 +     from weasyprint import HTML
+90 |     from yattag import Doc
+   -     from weasyprint import HTML
+91 | except ImportError as e:
+   |
+
+F401 `yattag.Doc` imported but unused; consider using `importlib.util.find_spec` to test for availability
+  --> build/slipperypenguin-2.3.7/slipperypenguin.py:89:24
+   |
+88 | try:
+89 |     from yattag import Doc
+   |                        ^^^
+90 |     from weasyprint import HTML
+91 | except ImportError as e:
+   |
+help: Remove unused import: `yattag.Doc`
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:109:20
+    |
+107 |                 elif os.path.isdir(file_path):
+108 |                     shutil.rmtree(file_path)
+109 |             except Exception as e:
+    |                    ^^^^^^^^^
+110 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+111 |     print("Logs Deleted!")
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:110:23
+    |
+108 |                     shutil.rmtree(file_path)
+109 |             except Exception as e:
+110 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+111 |     print("Logs Deleted!")
+    |
+help: Replace with format specifiers
+    |
+109 |             except Exception as e:
+    -                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+110 +                 print("Failed to delete {}. Reason: {}".format(file_path, e))
+111 |     print("Logs Deleted!")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:124:20
+    |
+122 |                 elif os.path.isdir(file_path):
+123 |                     shutil.rmtree(file_path)
+124 |             except Exception as e:
+    |                    ^^^^^^^^^
+125 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+126 |     print("Logs Deleted!")
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:125:23
+    |
+123 |                     shutil.rmtree(file_path)
+124 |             except Exception as e:
+125 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+126 |     print("Logs Deleted!")
+127 |     sys.exit(0)
+    |
+help: Replace with format specifiers
+    |
+124 |             except Exception as e:
+    -                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+125 +                 print("Failed to delete {}. Reason: {}".format(file_path, e))
+126 |     print("Logs Deleted!")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:140:20
+    |
+138 |                 elif os.path.isdir(file_path):
+139 |                     shutil.rmtree(file_path)
+140 |             except Exception as e:
+    |                    ^^^^^^^^^
+141 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:141:23
+    |
+139 |                     shutil.rmtree(file_path)
+140 |             except Exception as e:
+141 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+142 |
+143 |     ## This removes the gtfobins data
+    |
+help: Replace with format specifiers
+    |
+140 |             except Exception as e:
+    -                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+141 +                 print("Failed to delete {}. Reason: {}".format(file_path, e))
+142 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F541 [*] f-string without any placeholders
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:146:23
+    |
+144 |     if os.path.exists(GTFO_FILE):
+145 |         os.unlink(GTFO_FILE)
+146 |         console.print(f"[green]GTFOBins data removed.[/green]")
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+147 |
+148 |     ## this removes the logs dir
+    |
+help: Remove extraneous `f` prefix
+    |
+145 |         os.unlink(GTFO_FILE)
+    -         console.print(f"[green]GTFOBins data removed.[/green]")
+146 +         console.print("[green]GTFOBins data removed.[/green]")
+147 |
+    |
+
+F541 [*] f-string without any placeholders
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:151:23
+    |
+149 |     if os.path.exists(STORAGE_ROOT):
+150 |         shutil.rmtree(STORAGE_ROOT)
+151 |         console.print(f"[green]Logs directory removed.[/green]")
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+152 |     sys.exit(0)
+    |
+help: Remove extraneous `f` prefix
+    |
+150 |         shutil.rmtree(STORAGE_ROOT)
+    -         console.print(f"[green]Logs directory removed.[/green]")
+151 +         console.print("[green]Logs directory removed.[/green]")
+152 |     sys.exit(0)
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:195:12
+    |
+193 |                 os.unlink(tmp_path)
+194 |                 raise RuntimeError("Checksum mismatch- download aborted")
+195 |     except Exception as e:
+    |            ^^^^^^^^^
+196 |         console.print(f"[red]{e}[/red]")
+    |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:223:9
+    |
+221 | try:
+222 |     if args.update_gtfobins:
+223 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+    |         ^^^^^^^^^^^^^^
+224 |         print(f"GTFOBins updated at {GTFO_FILE}")
+225 |         sys.exit(0)
+    |
+help: Add explicit `check=False`
+    |
+222 |     if args.update_gtfobins:
+    -         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+223 +         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE], check=False)
+224 |         print(f"GTFOBins updated at {GTFO_FILE}")
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:226:8
+    |
+224 |         print(f"GTFOBins updated at {GTFO_FILE}")
+225 |         sys.exit(0)
+226 | except Exception as e:
+    |        ^^^^^^^^^
+227 |     console.print(f"[red]Updating GTFObins failed, {e}[/red]")
+    |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:259:13
+    |
+257 |         try:
+258 |             # Updating gtfobins logic
+259 |             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+    |             ^^^^^^^^^^^^^^
+260 |             print(f"GTFOBins updated at {GTFO_FILE}")
+261 |         except Exception as e:
+    |
+help: Add explicit `check=False`
+    |
+258 |             # Updating gtfobins logic
+    -             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+259 +             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE], check=False)
+260 |             print(f"GTFOBins updated at {GTFO_FILE}")
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:261:16
+    |
+259 |             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+260 |             print(f"GTFOBins updated at {GTFO_FILE}")
+261 |         except Exception as e:
+    |                ^^^^^^^^^
+262 |             console.print(f"[red]Could not update GTFOBins, {e}[/red]")
+263 |         try:
+    |
+
+F821 Undefined name `tmp_path`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:266:31
+    |
+264 |             download_update(update_info["url"], latest)
+265 |         except Exception as e:
+266 |             if os.path.exists(tmp_path):
+    |                               ^^^^^^^^
+267 |                 os.unlink(tmp_path)
+268 |                 raise e
+    |
+
+F821 Undefined name `tmp_path`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:267:27
+    |
+265 |         except Exception as e:
+266 |             if os.path.exists(tmp_path):
+267 |                 os.unlink(tmp_path)
+    |                           ^^^^^^^^
+268 |                 raise e
+    |
+
+TRY201 Use `raise` without specifying exception name
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:268:23
+    |
+266 |             if os.path.exists(tmp_path):
+267 |                 os.unlink(tmp_path)
+268 |                 raise e
+    |                       ^
+269 |
+270 |         try:
+    |
+help: Remove exception name
+    |
+267 |                 os.unlink(tmp_path)
+    -                 raise e
+268 +                 raise
+269 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:273:16
+    |
+271 |             extract_dir = extract_update(update_info["url"])
+272 |
+273 |         except Exception:
+    |                ^^^^^^^^^
+274 |             console.print(f"[red]{Exception}[/red]")
+275 |             exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:275:13
+    |
+273 |         except Exception:
+274 |             console.print(f"[red]{Exception}[/red]")
+275 |             exit(-1)
+    |             ^^^^
+276 |         try:
+277 |             install_update(extract_dir)
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+274 |             console.print(f"[red]{Exception}[/red]")
+    -             exit(-1)
+275 +             sys.exit(-1)
+276 |         try:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:278:16
+    |
+276 |         try:
+277 |             install_update(extract_dir)
+278 |         except Exception:
+    |                ^^^^^^^^^
+279 |             console.print(f"[red]{Exception}[/red]")
+280 |             exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:280:13
+    |
+278 |         except Exception:
+279 |             console.print(f"[red]{Exception}[/red]")
+280 |             exit(-1)
+    |             ^^^^
+281 |         console.print("[green]Update Successful![/green]")
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+279 |             console.print(f"[red]{Exception}[/red]")
+    -             exit(-1)
+280 +             sys.exit(-1)
+281 |         console.print("[green]Update Successful![/green]")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F541 [*] f-string without any placeholders
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:284:29
+    |
+283 | if args.timeout:
+284 |     timeout_var = int(input(f"[yellow]Enter custom timeout value: [/yellow]"))
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+285 |
+286 | # Loading the gtfobins data
+    |
+help: Remove extraneous `f` prefix
+    |
+283 | if args.timeout:
+    -     timeout_var = int(input(f"[yellow]Enter custom timeout value: [/yellow]"))
+284 +     timeout_var = int(input("[yellow]Enter custom timeout value: [/yellow]"))
+285 |
+    |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:321:9
+    |
+319 |     try:
+320 |         # Updating gtfobins logic
+321 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+    |         ^^^^^^^^^^^^^^
+322 |         print(f"GTFOBins updated at {GTFO_FILE}")
+323 |     except Exception as e:
+    |
+help: Add explicit `check=False`
+    |
+320 |         # Updating gtfobins logic
+    -         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+321 +         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE], check=False)
+322 |         print(f"GTFOBins updated at {GTFO_FILE}")
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:323:12
+    |
+321 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+322 |         print(f"GTFOBins updated at {GTFO_FILE}")
+323 |     except Exception as e:
+    |            ^^^^^^^^^
+324 |         console.print(f"[red]Could not update GTFOBins, {e}[/red]")
+325 |     try:
+    |
+
+F821 Undefined name `tmp_path`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:328:27
+    |
+326 |         download_update(update_info["url"], latest)
+327 |     except Exception as e:
+328 |         if os.path.exists(tmp_path):
+    |                           ^^^^^^^^
+329 |             os.unlink(tmp_path)
+330 |         raise e
+    |
+
+F821 Undefined name `tmp_path`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:329:23
+    |
+327 |     except Exception as e:
+328 |         if os.path.exists(tmp_path):
+329 |             os.unlink(tmp_path)
+    |                       ^^^^^^^^
+330 |         raise e
+331 |     try:
+    |
+
+TRY201 Use `raise` without specifying exception name
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:330:15
+    |
+328 |         if os.path.exists(tmp_path):
+329 |             os.unlink(tmp_path)
+330 |         raise e
+    |               ^
+331 |     try:
+332 |         extract_dir = extract_update(update_info["url"])
+    |
+help: Remove exception name
+    |
+329 |             os.unlink(tmp_path)
+    -         raise e
+330 +         raise
+331 |     try:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:333:12
+    |
+331 |     try:
+332 |         extract_dir = extract_update(update_info["url"])
+333 |     except Exception:
+    |            ^^^^^^^^^
+334 |         console.print(f"[red]{Exception}[/red]")
+335 |         exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:335:9
+    |
+333 |     except Exception:
+334 |         console.print(f"[red]{Exception}[/red]")
+335 |         exit(-1)
+    |         ^^^^
+336 |     try:
+337 |         install_update(extract_dir)
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+334 |         console.print(f"[red]{Exception}[/red]")
+    -         exit(-1)
+335 +         sys.exit(-1)
+336 |     try:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:338:12
+    |
+336 |     try:
+337 |         install_update(extract_dir)
+338 |     except Exception:
+    |            ^^^^^^^^^
+339 |         console.print(f"[red]{Exception}[/red]")
+340 |         exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:340:9
+    |
+338 |     except Exception:
+339 |         console.print(f"[red]{Exception}[/red]")
+340 |         exit(-1)
+    |         ^^^^
+341 |     console.print("[green]Update Successful![/green]")
+342 |     if args.update in ("run"):
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+339 |         console.print(f"[red]{Exception}[/red]")
+    -         exit(-1)
+340 +         sys.exit(-1)
+341 |     console.print("[green]Update Successful![/green]")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:345:9
+    |
+343 |         pass
+344 |     if args.update in ("close"):
+345 |         exit(0)
+    |         ^^^^
+help: Replace `exit` with `sys.exit()`
+    |
+344 |     if args.update in ("close"):
+    -         exit(0)
+345 +         sys.exit(0)
+346 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:349:10
+    |
+348 | # Enumerates SUIDs and checking capabilites
+349 | result = subprocess.run(
+    |          ^^^^^^^^^^^^^^
+350 |     ["find", "/", "-perm", "-4000", "-type", "f"], capture_output=True, text=True
+351 | )
+    |
+help: Add explicit `check=False`
+    |
+349 | result = subprocess.run(
+    -     ["find", "/", "-perm", "-4000", "-type", "f"], capture_output=True, text=True
+350 +     ["find", "/", "-perm", "-4000", "-type", "f"], check=False, capture_output=True, text=True
+351 | )
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+F541 [*] f-string without any placeholders
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:355:19
+    |
+353 | find_append["results"] = agg_result
+354 | if args.output in ("terminal", "both"):
+355 |     console.print(f"[yellow]SUIDs Found:[/yellow]")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+356 |     for suid in agg_result:
+357 |         console.print(f"  [green]{suid}[/green]")
+    |
+help: Remove extraneous `f` prefix
+    |
+354 | if args.output in ("terminal", "both"):
+    -     console.print(f"[yellow]SUIDs Found:[/yellow]")
+355 +     console.print("[yellow]SUIDs Found:[/yellow]")
+356 |     for suid in agg_result:
+    |
+
+F541 [*] f-string without any placeholders
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:358:19
+    |
+356 |     for suid in agg_result:
+357 |         console.print(f"  [green]{suid}[/green]")
+358 |     console.print(f"[yellow]END SUIDs[/yellow]\n")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+359 | if args.output in ("logs", "both"):
+360 |     with open(FIND_OUT, "w") as f:
+    |
+help: Remove extraneous `f` prefix
+    |
+357 |         console.print(f"  [green]{suid}[/green]")
+    -     console.print(f"[yellow]END SUIDs[/yellow]\n")
+358 +     console.print("[yellow]END SUIDs[/yellow]\n")
+359 | if args.output in ("logs", "both"):
+    |
+
+F841 [*] Local variable `e` is assigned to but never used
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:368:29
+    |
+366 |     with open("flags.json", "r") as file:
+367 |         flags = json.load(file)
+368 | except FileNotFoundError as e:
+    |                             ^
+369 |     console.print("[red]Flags load failure: {e}[/red]")
+370 |     traceback.print_exc()
+    |
+help: Remove assignment to unused variable `e`
+    |
+367 |         flags = json.load(file)
+    - except FileNotFoundError as e:
+368 + except FileNotFoundError:
+369 |     console.print("[red]Flags load failure: {e}[/red]")
+    |
+
+SIM117 [*] Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:390:5
+    |
+389 |   async def append(target: dict, b, data):
+390 | /     async with semaphore:
+391 | |         async with lock:
+    | |________________________^
+392 |               target[b] = data
+    |
+help: Combine `with` statements
+    |
+389 | async def append(target: dict, b, data):
+    -     async with semaphore:
+    -         async with lock:
+    -             target[b] = data
+390 +     async with semaphore, lock:
+391 +         target[b] = data
+392 |
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:401:12
+    |
+399 |     # if args.output in ("logs"):
+400 |     #    print("strings scan started")
+401 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+402 |     global timeout_append
+403 |     try:
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:402:12
+    |
+400 |     #    print("strings scan started")
+401 |     global strings_append
+402 |     global timeout_append
+    |            ^^^^^^^^^^^^^^
+403 |     try:
+404 |         process = await asyncio.create_subprocess_exec(
+    |
+
+RUF059 Unpacked variable `stderr` is never used
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:413:21
+    |
+411 |         )
+412 |         try:
+413 |             stdout, stderr = await asyncio.wait_for(
+    |                     ^^^^^^
+414 |                 process.communicate(), timeout=timeout_var
+415 |             )
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+412 |         try:
+    -             stdout, stderr = await asyncio.wait_for(
+413 +             stdout, _stderr = await asyncio.wait_for(
+414 |                 process.communicate(), timeout=timeout_var
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:426:12
+    |
+424 |             await append(timeout_append, b, "timeout")
+425 |             # return stdout.decode().splitlines()
+426 |     except Exception as e:
+    |            ^^^^^^^^^
+427 |         console.print(f"[red]strings_scan failure: {e}[/red]")
+428 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `strace_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:433:12
+    |
+431 | # strace scanning
+432 | async def strace_scan(b):
+433 |     global strace_append, timeout_append
+    |            ^^^^^^^^^^^^^
+434 |     try:
+435 |         process = await asyncio.create_subprocess_exec(
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:433:27
+    |
+431 | # strace scanning
+432 | async def strace_scan(b):
+433 |     global strace_append, timeout_append
+    |                           ^^^^^^^^^^^^^^
+434 |     try:
+435 |         process = await asyncio.create_subprocess_exec(
+    |
+
+RUF059 Unpacked variable `stdout` is never used
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:447:13
+    |
+445 |         )
+446 |         try:
+447 |             stdout, stderr = await asyncio.wait_for(
+    |             ^^^^^^
+448 |                 process.communicate(), timeout=timeout_var
+449 |             )
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+446 |         try:
+    -             stdout, stderr = await asyncio.wait_for(
+447 +             _stdout, stderr = await asyncio.wait_for(
+448 |                 process.communicate(), timeout=timeout_var
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:460:12
+    |
+458 |         if args.output in ("terminal", "both"):
+459 |             print(f"\nStrace for {b}: {strace_append.get(b, [])}")
+460 |     except Exception as e:
+    |            ^^^^^^^^^
+461 |         console.print(f"[red]strace_scan failure: {e}[/red]")
+462 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `gtfo_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:467:12
+    |
+465 | # gtfobins comp
+466 | async def gtfo_scan(b):
+467 |     global gtfo_append
+    |            ^^^^^^^^^^^
+468 |     try:
+469 |         binary_name = os.path.basename(b)
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:479:12
+    |
+477 |                         console.print(f"[magenta]--Results for: {b}--[/magenta]")
+478 |                         console.print(f"[cyan]  SUID exploit: {func_type}[/cyan]")
+479 |     except Exception as e:
+    |            ^^^^^^^^^
+480 |         console.print(f"[red]gtfo comp failure: {e}[/red]")
+481 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `getcap_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:486:12
+    |
+484 | # getcap scan
+485 | async def get_scan():
+486 |     global getcap_append
+    |            ^^^^^^^^^^^^^
+487 |     global strings_append
+488 |     global flags_append
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:487:12
+    |
+485 | async def get_scan():
+486 |     global getcap_append
+487 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+488 |     global flags_append
+489 |     global timeout_append
+    |
+
+PLW0602 Using global for `flags_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:488:12
+    |
+486 |     global getcap_append
+487 |     global strings_append
+488 |     global flags_append
+    |            ^^^^^^^^^^^^
+489 |     global timeout_append
+490 |     dt = str(datetime.now())
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:489:12
+    |
+487 |     global strings_append
+488 |     global flags_append
+489 |     global timeout_append
+    |            ^^^^^^^^^^^^^^
+490 |     dt = str(datetime.now())
+491 |     for flag in flags_append:
+    |
+
+RUF059 Unpacked variable `stderr` is never used
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:502:29
+    |
+500 |                 )
+501 |                 try:
+502 |                     stdout, stderr = await asyncio.wait_for(
+    |                             ^^^^^^
+503 |                         result.communicate(), timeout=timeout_var
+504 |                     )
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+501 |                 try:
+    -                     stdout, stderr = await asyncio.wait_for(
+502 +                     stdout, _stderr = await asyncio.wait_for(
+503 |                         result.communicate(), timeout=timeout_var
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:519:28
+    |
+517 |                                 f"\n[yellow]getcap: [/yellow][green]{cap_append}[/green]"
+518 |                             )
+519 |                     except Exception as e:
+    |                            ^^^^^^^^^
+520 |                         console.print(f"[red]get_scan failure: {e}[/red]")
+521 |                         traceback.print_exc()
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:524:45
+    |
+522 |                 except TimeoutError:
+523 |                     result.kill()
+524 |             except (asyncio.CancelledError, Exception) as e:
+    |                                             ^^^^^^^^^
+525 |                 console.print(f"getcap flag append failure {e}")
+526 |                 traceback.print_exc()
+    |
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:533:13
+    |
+531 |               try:
+532 |                   await result.wait()
+533 | /             except (asyncio.CancelledError, Exception) as e:
+534 | |                 pass
+    | |____________________^
+535 |               finally:
+536 |                   timeout_append[dt] = "timeout"
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:533:45
+    |
+531 |             try:
+532 |                 await result.wait()
+533 |             except (asyncio.CancelledError, Exception) as e:
+    |                                             ^^^^^^^^^
+534 |                 pass
+535 |             finally:
+    |
+
+F841 [*] Local variable `e` is assigned to but never used
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:533:59
+    |
+531 |             try:
+532 |                 await result.wait()
+533 |             except (asyncio.CancelledError, Exception) as e:
+    |                                                           ^
+534 |                 pass
+535 |             finally:
+    |
+help: Remove assignment to unused variable `e`
+    |
+532 |                 await result.wait()
+    -             except (asyncio.CancelledError, Exception) as e:
+533 +             except (asyncio.CancelledError, Exception):
+534 |                 pass
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:540:12
+    |
+539 | async def timeouts(b):
+540 |     global timeout_append
+    |            ^^^^^^^^^^^^^^
+541 |     try:
+542 |         if args.output in ("terminal", "both"):
+    |
+
+ASYNC230 Async functions should not open files with blocking methods like `open`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:547:18
+    |
+545 |                 console.print(f"\n[green] {t}[/green]")
+546 |         if args.output in ("logs", "both"):
+547 |             with open(TIMEOUT_OUT, "w") as f:
+    |                  ^^^^
+548 |                 json.dump(timeout_append, f)
+549 |     except Exception as e:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:549:12
+    |
+547 |             with open(TIMEOUT_OUT, "w") as f:
+548 |                 json.dump(timeout_append, f)
+549 |     except Exception as e:
+    |            ^^^^^^^^^
+550 |         console.print(f"[red]timeouts failure: {e}[/red]")
+551 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `strace_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:559:12
+    |
+557 | # strace results
+558 | def strace_write(b):
+559 |     global strace_append
+    |            ^^^^^^^^^^^^^
+560 |     try:
+561 |         if args.output in ("logs", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:565:12
+    |
+563 |             with open(STRACE_OUT, "w") as f:
+564 |                 json.dump(strace_append, f)
+565 |     except Exception as e:
+    |            ^^^^^^^^^
+566 |         console.print(f"[red]strace write failure: {e}[/red]")
+567 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:573:12
+    |
+571 | def strings_write(b):
+572 |     passer = {}
+573 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+574 |     try:
+575 |         if args.output in ("terminal", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:590:12
+    |
+588 |             with open(STR_OUT, "w", encoding="utf-8") as f:
+589 |                 json.dump(passer, f)
+590 |     except Exception as e:
+    |            ^^^^^^^^^
+591 |         console.print(f"[red]strings write failure: {e}[/red]")
+592 |         traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:593:9
+    |
+591 |         console.print(f"[red]strings write failure: {e}[/red]")
+592 |         traceback.print_exc()
+593 |         pass
+    |         ^^^^
+help: Remove unnecessary `pass`
+    |
+592 |         traceback.print_exc()
+    -         pass
+593 |
+    |
+
+PLW0602 Using global for `flags_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:600:12
+    |
+599 | def flags_write_print():
+600 |     global flags_append
+    |            ^^^^^^^^^^^^
+601 |     global strings_append
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:601:12
+    |
+599 | def flags_write_print():
+600 |     global flags_append
+601 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+
+PLW0602 Using global for `flags_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:606:12
+    |
+604 | # flags writing
+605 | async def flags_write(b):
+606 |     global flags_append
+    |            ^^^^^^^^^^^^
+607 |     global strings_append
+608 |     try:
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:607:12
+    |
+605 | async def flags_write(b):
+606 |     global flags_append
+607 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+608 |     try:
+609 |         if args.output in ("terminal", "both"):
+    |
+
+ASYNC230 Async functions should not open files with blocking methods like `open`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:621:18
+    |
+620 |         if args.output in ("logs", "both"):
+621 |             with open("flags.json", "w") as file:
+    |                  ^^^^
+622 |                 json.dump(flags_append, file)
+623 |     except Exception as e:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:623:12
+    |
+621 |             with open("flags.json", "w") as file:
+622 |                 json.dump(flags_append, file)
+623 |     except Exception as e:
+    |            ^^^^^^^^^
+624 |         console.print(f"[red]Flags dump failure: {e}[/red]")
+625 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `cap_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:630:12
+    |
+628 | # getcap results writing
+629 | def getcap_write(b):
+630 |     global cap_append
+    |            ^^^^^^^^^^
+631 |     try:
+632 |         if args.output in ("logs", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:635:12
+    |
+633 |             with open(CAP_OUT, "w", encoding="utf-8") as f:
+634 |                 json.dump(cap_append, f)
+635 |     except Exception as e:
+    |            ^^^^^^^^^
+636 |         console.print(f"[red]gtfo error: {e}[/red]")
+637 |         traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:638:9
+    |
+636 |         console.print(f"[red]gtfo error: {e}[/red]")
+637 |         traceback.print_exc()
+638 |         pass
+    |         ^^^^
+help: Remove unnecessary `pass`
+    |
+637 |         traceback.print_exc()
+    -         pass
+638 |
+    |
+
+PLW0602 Using global for `gtfo_append` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:643:12
+    |
+641 | # gtfobins results writing
+642 | def gtfo_write(b):
+643 |     global gtfo_append
+    |            ^^^^^^^^^^^
+644 |     try:
+645 |         if args.output in ("logs", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:648:12
+    |
+646 |             with open(GTFO_OUT, "w", encoding="utf-8") as f:
+647 |                 json.dump(gtfo_append, f)
+648 |     except Exception as e:
+    |            ^^^^^^^^^
+649 |         console.print(f"[red]gtfo write error : {e}[/red]")
+    |
+
+PLW0602 Using global for `b_exp` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:653:12
+    |
+652 | async def main():
+653 |     global b_exp
+    |            ^^^^^
+654 |     global agg_result
+655 |     with console.status("[blue]Sliding Around... [/blue]"):
+    |
+
+PLW0602 Using global for `agg_result` but no assignment is done
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:654:12
+    |
+652 | async def main():
+653 |     global b_exp
+654 |     global agg_result
+    |            ^^^^^^^^^^
+655 |     with console.status("[blue]Sliding Around... [/blue]"):
+656 |         try:
+    |
+
+F841 Local variable `results` is assigned to but never used
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:661:21
+    |
+659 |                     continue
+660 |                 try:
+661 |                     results = await asyncio.gather(
+    |                     ^^^^^^^
+662 |                         strings_scan(binary),
+663 |                         flags_write(binary),
+    |
+help: Remove assignment to unused variable `results`
+    |
+660 |                 try:
+    -                     results = await asyncio.gather(
+661 +                     await asyncio.gather(
+662 |                         strings_scan(binary),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:676:49
+    |
+674 |                     b_exp[binary]["gtfo"] = gtfo_append.get(binary, [])
+675 |                     b_exp[binary]["timeouts"] = timeout_append.get(binary, [])
+676 |                 except (asyncio.CancelledError, Exception) as e:
+    |                                                 ^^^^^^^^^
+677 |                     console.print(f"[red]scan failure: {e}[/red]")
+678 |                     traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:679:21
+    |
+677 |                     console.print(f"[red]scan failure: {e}[/red]")
+678 |                     traceback.print_exc()
+679 |                     pass
+    |                     ^^^^
+680 |                 try:
+681 |                     getcap_write(binary)
+    |
+help: Remove unnecessary `pass`
+    |
+678 |                     traceback.print_exc()
+    -                     pass
+679 |                 try:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:686:24
+    |
+684 |                     strings_write(binary)
+685 |                     await get_scan()
+686 |                 except Exception as e:
+    |                        ^^^^^^^^^
+687 |                     console.print(f"[red]write failure: {e}[/red]")
+688 |                     traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:689:21
+    |
+687 |                     console.print(f"[red]write failure: {e}[/red]")
+688 |                     traceback.print_exc()
+689 |                     pass
+    |                     ^^^^
+690 |         except Exception as e:
+691 |             console.print(f"[red]main failure: {e}[/red]")
+    |
+help: Remove unnecessary `pass`
+    |
+688 |                     traceback.print_exc()
+    -                     pass
+689 |         except Exception as e:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:690:16
+    |
+688 |                     traceback.print_exc()
+689 |                     pass
+690 |         except Exception as e:
+    |                ^^^^^^^^^
+691 |             console.print(f"[red]main failure: {e}[/red]")
+692 |             traceback.print_exc()
+    |
+
+ASYNC230 Async functions should not open files with blocking methods like `open`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:696:18
+    |
+694 |         if args.htmlreport and b_exp:
+695 |             html = generate_report(b_exp, default_binary=next(iter(b_exp.keys()), None))
+696 |             with open(HTML_OUT, "w", encoding="utf-8") as f:
+    |                  ^^^^
+697 |                 f.write(html)
+698 |         if args.pdfreport:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:704:16
+    |
+702 |         try:
+703 |             await timeouts(binary)
+704 |         except Exception as e:
+    |                ^^^^^^^^^
+705 |             console.print({e})
+706 |             return 0
+    |
+
+F541 [*] f-string without any placeholders
+   --> build/slipperypenguin-2.3.7/slipperypenguin.py:710:15
+    |
+709 | asyncio.run(main())
+710 | console.print(f"[bold bright_green]Done![/bold bright_green]")
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Remove extraneous `f` prefix
+    |
+709 | asyncio.run(main())
+    - console.print(f"[bold bright_green]Done![/bold bright_green]")
+710 + console.print("[bold bright_green]Done![/bold bright_green]")
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> build/slipperypenguin-2.3.7/updatehelpers.py:1:1
+   |
+ 1 | / from rich.console import Console
+ 2 | | import urllib.request
+ 3 | | import urllib.error
+ 4 | | import json
+ 5 | | import os
+ 6 | | import sys
+ 7 | | import tempfile
+ 8 | | import hashlib
+ 9 | | import shutil
+10 | | import subprocess
+11 | | import tarfile
+   | |______________^
+12 |
+13 |   console = Console()
+   |
+help: Organize imports
+   |
+   - from rich.console import Console
+   - import urllib.request
+   - import urllib.error
+1  + import hashlib
+2  | import json
+3  | import os
+   - import sys
+   - import tempfile
+   - import hashlib
+4  | import shutil
+5  | import subprocess
+6  + import sys
+7  | import tarfile
+8  + import tempfile
+9  + import urllib.error
+10 + import urllib.request
+11 +
+12 + from rich.console import Console
+13 |
+   |
+
+F401 [*] `sys` imported but unused
+ --> build/slipperypenguin-2.3.7/updatehelpers.py:6:8
+  |
+4 | import json
+5 | import os
+6 | import sys
+  |        ^^^
+7 | import tempfile
+8 | import hashlib
+  |
+help: Remove unused import: `sys`
+  |
+5 | import os
+  - import sys
+6 | import tempfile
+  |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> build/slipperypenguin-2.3.7/updatehelpers.py:36:12
+   |
+34 |                 raise RuntimeError("Checksum mismatch- download aborted")
+35 |         return tmp_path
+36 |     except Exception as e:
+   |            ^^^^^^^^^
+37 |         console.print(f"[red]{e}[/red]")
+38 |         return None
+   |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+  --> build/slipperypenguin-2.3.7/updatehelpers.py:64:9
+   |
+62 | def gtfo_update():
+63 |     try:
+64 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
+   |         ^^^^^^^^^^^^^^
+65 |         console.print("[green]GTFOBins updated at gtfobins.json[/green]")
+66 |     except Exception as e:
+   |
+help: Add explicit `check=False`
+   |
+63 |     try:
+   -         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
+64 +         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"], check=False)
+65 |         console.print("[green]GTFOBins updated at gtfobins.json[/green]")
+   |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+  --> build/slipperypenguin-2.3.7/updatehelpers.py:66:12
+   |
+64 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
+65 |         console.print("[green]GTFOBins updated at gtfobins.json[/green]")
+66 |     except Exception as e:
+   |            ^^^^^^^^^
+67 |         console.print(f"[red]Updating GTFObins failed, {e}[/red]")
+   |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> build/slipperypenguin-2.3.7/updatehelpers.py:104:13
+    |
+102 |         # Execute update
+103 |         try:
+104 |             subprocess.run(
+    |             ^^^^^^^^^^^^^^
+105 |                 ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"]
+106 |             )
+    |
+help: Add explicit `check=False`
+    |
+104 |             subprocess.run(
+    -                 ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"]
+105 +                 ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"], check=False
+106 |             )
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> build/slipperypenguin-2.3.7/updatehelpers.py:118:16
+    |
+116 |             console.print("[green]Update Successful![/green]")
+117 |
+118 |         except Exception as e:
+    |                ^^^^^^^^^
+119 |             console.print(f"[red]Update failed: {e}[/red]")
+120 |             return None
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> htmlgenerator.py:1:1
+  |
+1 | / from yattag import Doc
+2 | | from rich.console import Console
+3 | | import json
+  | |___________^
+help: Organize imports
+  |
+  - from yattag import Doc
+  - from rich.console import Console
+1 | import json
+2 |
+3 + from rich.console import Console
+4 + from yattag import Doc
+5 +
+6 |
+  |
+
+F401 [*] `rich.console.Console` imported but unused
+ --> htmlgenerator.py:2:26
+  |
+1 | from yattag import Doc
+2 | from rich.console import Console
+  |                          ^^^^^^^
+3 | import json
+  |
+help: Remove unused import: `rich.console.Console`
+  |
+1 | from yattag import Doc
+  - from rich.console import Console
+2 | import json
+  |
+
+F841 Local variable `ascii_art` is assigned to but never used
+  --> htmlgenerator.py:11:9
+   |
+ 9 |             ascii_art = f.read()
+10 |     except FileNotFoundError:
+11 |         ascii_art = ""
+   |         ^^^^^^^^^
+12 |     doc, tag, text = Doc().tagtext()
+13 |     with tag("html", lang="en"):
+   |
+help: Remove assignment to unused variable `ascii_art`
+   |
+10 |     except FileNotFoundError:
+   -         ascii_art = ""
+11 +         pass
+12 |     doc, tag, text = Doc().tagtext()
+   |
+note: This is an unsafe fix and may change runtime behavior
+
+F541 [*] f-string without any placeholders
+   --> htmlgenerator.py:30:26
+    |
+ 29 |               with tag("style"):
+ 30 |                   doc.asis(f"""
+    |  __________________________^
+ 31 | |                     body::before {{
+ 32 | |                         position: fixed;
+ 33 | |                         bottom: 5px;
+ 34 | |                         top: 50%;
+ 35 | |                         left: 50%;
+ 36 | |                         transform: translate(-50%, 0);
+ 37 | |                         font-family: monospace;
+ 38 | |                         font-size: 10px;
+ 39 | |                         line-height: 8px;
+ 40 | |                         color: rgba(0, 100, 0, 0.05);  
+ 41 | |                         white-space: pre;
+ 42 | |                         z-index: 0;
+ 43 | |                         pointer-events: none;
+ 44 | |                         width: 100%;      
+ 45 | |                         text-align: center; 
+ 46 | |                     }}
+ 47 | |
+ 48 | |                     body {{
+ 49 | |                         margin: 10;
+ 50 | |                         padding: 20px;
+ 51 | |                         background: #1a1a1a;
+ 52 | |                         color: #00ff00;
+ 53 | |                     }}
+ 54 | |
+ 55 | |                     .header {{
+ 56 | |                         text-align: center;
+ 57 | |                         border: 2px solid green;
+ 58 | |                         border-radius: 10px;
+ 59 | |                         padding: 20px;
+ 60 | |                         margin-bottom: 20px;
+ 61 | |                         background: black;
+ 62 | |                         page-break-after: avoid;
+ 63 | |                     }}
+ 64 | |                     .section {{
+ 65 | |                         margin: 0;         
+ 66 | |                         padding: 8px;    
+ 67 | |                         background: #000;
+ 68 | |                         border-left: 4px solid darkgreen;
+ 69 | |                         border-bottom: 4px solid darkgreen;
+ 70 | |                         border-right: 4px solid darkgreen;
+ 71 | |                         border-top: 4px solid darkgreen;
+ 72 | |                         border-left: 4px solid darkgreen;
+ 73 | |                         border-radius: 10px;
+ 74 | |                         page-break-after: always;  
+ 75 | |                         page-break-inside: avoid;
+ 76 | |                     }}
+ 77 | |
+ 78 | |                     .binary-title {{
+ 79 | |                         color: #00ff00;
+ 80 | |                         border-bottom: 1px solid #00ff00;
+ 81 | |                         padding-bottom: 8px;
+ 82 | |                         margin-top: 20px;
+ 83 | |                     }}
+ 84 | |
+ 85 | |                     .result-block {{
+ 86 | |                         margin: 5px 0;
+ 87 | |                         padding: 10px;
+ 88 | |                         background: #111;
+ 89 | |                         border-left: 1px dashed darkgreen;
+ 90 | |                         border-bottom: 1px dashed darkgreen;
+ 91 | |                         border-radius: 4px;
+ 92 | |                         page-break-inside: avoid;
+ 93 | |                     }}
+ 94 | |
+ 95 | |                     .result-label {{
+ 96 | |                         font-weight: bold;
+ 97 | |                         color: #00cc00;
+ 98 | |                         margin-bottom: 5px;
+ 99 | |                     }}
+100 | |
+101 | |                     pre {{
+102 | |                         background: #1a1a1a;
+103 | |                         color: #00ff00;
+104 | |                         padding: 10px;
+105 | |                         border-radius: 5px;
+106 | |                           
+107 | |                         overflow: hidden;   
+108 | |                         margin: 0;
+109 | |                         font-size: 10px;
+110 | |                     }}
+111 | |
+112 | |                     h1, h2, h3 {{
+113 | |                         color: #00ff00;
+114 | |                     }}
+115 | |                 """)
+    | |___________________^
+116 |
+117 |           with tag("body"):
+    |
+help: Remove extraneous `f` prefix
+    |
+29  |             with tag("style"):
+    -                 doc.asis(f"""
+    -                     body::before {{
+30  +                 doc.asis("""
+31  +                     body::before {
+32  |                         position: fixed;
+--------------------------------------------------------------------------------
+45  |                         text-align: center; 
+    -                     }}
+46  +                     }
+47  |
+    -                     body {{
+48  +                     body {
+49  |                         margin: 10;
+50  |                         padding: 20px;
+51  |                         background: #1a1a1a;
+52  |                         color: #00ff00;
+    -                     }}
+53  +                     }
+54  |
+    -                     .header {{
+55  +                     .header {
+56  |                         text-align: center;
+--------------------------------------------------------------------------------
+62  |                         page-break-after: avoid;
+    -                     }}
+    -                     .section {{
+63  +                     }
+64  +                     .section {
+65  |                         margin: 0;         
+--------------------------------------------------------------------------------
+75  |                         page-break-inside: avoid;
+    -                     }}
+76  +                     }
+77  |
+    -                     .binary-title {{
+78  +                     .binary-title {
+79  |                         color: #00ff00;
+80  |                         border-bottom: 1px solid #00ff00;
+81  |                         padding-bottom: 8px;
+82  |                         margin-top: 20px;
+    -                     }}
+83  +                     }
+84  |
+    -                     .result-block {{
+85  +                     .result-block {
+86  |                         margin: 5px 0;
+--------------------------------------------------------------------------------
+92  |                         page-break-inside: avoid;
+    -                     }}
+93  +                     }
+94  |
+    -                     .result-label {{
+95  +                     .result-label {
+96  |                         font-weight: bold;
+97  |                         color: #00cc00;
+98  |                         margin-bottom: 5px;
+    -                     }}
+99  +                     }
+100 |
+    -                     pre {{
+101 +                     pre {
+102 |                         background: #1a1a1a;
+--------------------------------------------------------------------------------
+109 |                         font-size: 10px;
+    -                     }}
+110 +                     }
+111 |
+    -                     h1, h2, h3 {{
+112 +                     h1, h2, h3 {
+113 |                         color: #00ff00;
+    -                     }}
+114 +                     }
+115 |                 """)
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> slipperypenguin.py:1:1
+  |
+1 | / import signal, subprocess, os, json, argparse, sys, shutil, urllib.request, tempfile, hashlib, asyncio, traceback
+2 | | import tarfile, urllib.error
+3 | | from datetime import datetime
+4 | | from rich.console import Console
+5 | | from htmlgenerator import generate_report, generate_PDF
+6 | | from weasyprint import HTML
+  | |___________________________^
+7 |
+8 |   console = Console()
+  |
+help: Organize imports
+   |
+   - import signal, subprocess, os, json, argparse, sys, shutil, urllib.request, tempfile, hashlib, asyncio, traceback
+   - import tarfile, urllib.error
+1  + import argparse
+2  + import asyncio
+3  + import hashlib
+4  + import json
+5  + import os
+6  + import shutil
+7  + import signal
+8  + import subprocess
+9  + import sys
+10 + import tarfile
+11 + import tempfile
+12 + import traceback
+13 + import urllib.error
+14 + import urllib.request
+15 | from datetime import datetime
+16 +
+17 | from rich.console import Console
+   - from htmlgenerator import generate_report, generate_PDF
+18 | from weasyprint import HTML
+19 |
+20 + from htmlgenerator import generate_PDF, generate_report
+21 +
+22 | console = Console()
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> slipperypenguin.py:89:5
+   |
+88 |   try:
+89 | /     from yattag import Doc
+90 | |     from weasyprint import HTML
+   | |_______________________________^
+91 |   except ImportError as e:
+92 |       console.print(
+   |
+help: Organize imports
+   |
+88 | try:
+89 +     from weasyprint import HTML
+90 |     from yattag import Doc
+   -     from weasyprint import HTML
+91 | except ImportError as e:
+   |
+
+F401 `yattag.Doc` imported but unused; consider using `importlib.util.find_spec` to test for availability
+  --> slipperypenguin.py:89:24
+   |
+88 | try:
+89 |     from yattag import Doc
+   |                        ^^^
+90 |     from weasyprint import HTML
+91 | except ImportError as e:
+   |
+help: Remove unused import: `yattag.Doc`
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:109:20
+    |
+107 |                 elif os.path.isdir(file_path):
+108 |                     shutil.rmtree(file_path)
+109 |             except Exception as e:
+    |                    ^^^^^^^^^
+110 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+111 |     print("Logs Deleted!")
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> slipperypenguin.py:110:23
+    |
+108 |                     shutil.rmtree(file_path)
+109 |             except Exception as e:
+110 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+111 |     print("Logs Deleted!")
+    |
+help: Replace with format specifiers
+    |
+109 |             except Exception as e:
+    -                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+110 +                 print("Failed to delete {}. Reason: {}".format(file_path, e))
+111 |     print("Logs Deleted!")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:124:20
+    |
+122 |                 elif os.path.isdir(file_path):
+123 |                     shutil.rmtree(file_path)
+124 |             except Exception as e:
+    |                    ^^^^^^^^^
+125 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+126 |     print("Logs Deleted!")
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> slipperypenguin.py:125:23
+    |
+123 |                     shutil.rmtree(file_path)
+124 |             except Exception as e:
+125 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+126 |     print("Logs Deleted!")
+127 |     sys.exit(0)
+    |
+help: Replace with format specifiers
+    |
+124 |             except Exception as e:
+    -                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+125 +                 print("Failed to delete {}. Reason: {}".format(file_path, e))
+126 |     print("Logs Deleted!")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:140:20
+    |
+138 |                 elif os.path.isdir(file_path):
+139 |                     shutil.rmtree(file_path)
+140 |             except Exception as e:
+    |                    ^^^^^^^^^
+141 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |
+
+UP031 Use format specifiers instead of percent format
+   --> slipperypenguin.py:141:23
+    |
+139 |                     shutil.rmtree(file_path)
+140 |             except Exception as e:
+141 |                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+142 |
+143 |     ## This removes the gtfobins data
+    |
+help: Replace with format specifiers
+    |
+140 |             except Exception as e:
+    -                 print("Failed to delete %s. Reason: %s" % (file_path, e))
+141 +                 print("Failed to delete {}. Reason: {}".format(file_path, e))
+142 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F541 [*] f-string without any placeholders
+   --> slipperypenguin.py:146:23
+    |
+144 |     if os.path.exists(GTFO_FILE):
+145 |         os.unlink(GTFO_FILE)
+146 |         console.print(f"[green]GTFOBins data removed.[/green]")
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+147 |
+148 |     ## this removes the logs dir
+    |
+help: Remove extraneous `f` prefix
+    |
+145 |         os.unlink(GTFO_FILE)
+    -         console.print(f"[green]GTFOBins data removed.[/green]")
+146 +         console.print("[green]GTFOBins data removed.[/green]")
+147 |
+    |
+
+F541 [*] f-string without any placeholders
+   --> slipperypenguin.py:151:23
+    |
+149 |     if os.path.exists(STORAGE_ROOT):
+150 |         shutil.rmtree(STORAGE_ROOT)
+151 |         console.print(f"[green]Logs directory removed.[/green]")
+    |                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+152 |     sys.exit(0)
+    |
+help: Remove extraneous `f` prefix
+    |
+150 |         shutil.rmtree(STORAGE_ROOT)
+    -         console.print(f"[green]Logs directory removed.[/green]")
+151 +         console.print("[green]Logs directory removed.[/green]")
+152 |     sys.exit(0)
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:195:12
+    |
+193 |                 os.unlink(tmp_path)
+194 |                 raise RuntimeError("Checksum mismatch- download aborted")
+195 |     except Exception as e:
+    |            ^^^^^^^^^
+196 |         console.print(f"[red]{e}[/red]")
+    |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> slipperypenguin.py:223:9
+    |
+221 | try:
+222 |     if args.update_gtfobins:
+223 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+    |         ^^^^^^^^^^^^^^
+224 |         print(f"GTFOBins updated at {GTFO_FILE}")
+225 |         sys.exit(0)
+    |
+help: Add explicit `check=False`
+    |
+222 |     if args.update_gtfobins:
+    -         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+223 +         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE], check=False)
+224 |         print(f"GTFOBins updated at {GTFO_FILE}")
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:226:8
+    |
+224 |         print(f"GTFOBins updated at {GTFO_FILE}")
+225 |         sys.exit(0)
+226 | except Exception as e:
+    |        ^^^^^^^^^
+227 |     console.print(f"[red]Updating GTFObins failed, {e}[/red]")
+    |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> slipperypenguin.py:259:13
+    |
+257 |         try:
+258 |             # Updating gtfobins logic
+259 |             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+    |             ^^^^^^^^^^^^^^
+260 |             print(f"GTFOBins updated at {GTFO_FILE}")
+261 |         except Exception as e:
+    |
+help: Add explicit `check=False`
+    |
+258 |             # Updating gtfobins logic
+    -             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+259 +             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE], check=False)
+260 |             print(f"GTFOBins updated at {GTFO_FILE}")
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:261:16
+    |
+259 |             subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+260 |             print(f"GTFOBins updated at {GTFO_FILE}")
+261 |         except Exception as e:
+    |                ^^^^^^^^^
+262 |             console.print(f"[red]Could not update GTFOBins, {e}[/red]")
+263 |         try:
+    |
+
+F821 Undefined name `tmp_path`
+   --> slipperypenguin.py:266:31
+    |
+264 |             download_update(update_info["url"], latest)
+265 |         except Exception as e:
+266 |             if os.path.exists(tmp_path):
+    |                               ^^^^^^^^
+267 |                 os.unlink(tmp_path)
+268 |                 raise e
+    |
+
+F821 Undefined name `tmp_path`
+   --> slipperypenguin.py:267:27
+    |
+265 |         except Exception as e:
+266 |             if os.path.exists(tmp_path):
+267 |                 os.unlink(tmp_path)
+    |                           ^^^^^^^^
+268 |                 raise e
+    |
+
+TRY201 Use `raise` without specifying exception name
+   --> slipperypenguin.py:268:23
+    |
+266 |             if os.path.exists(tmp_path):
+267 |                 os.unlink(tmp_path)
+268 |                 raise e
+    |                       ^
+269 |
+270 |         try:
+    |
+help: Remove exception name
+    |
+267 |                 os.unlink(tmp_path)
+    -                 raise e
+268 +                 raise
+269 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:273:16
+    |
+271 |             extract_dir = extract_update(update_info["url"])
+272 |
+273 |         except Exception:
+    |                ^^^^^^^^^
+274 |             console.print(f"[red]{Exception}[/red]")
+275 |             exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> slipperypenguin.py:275:13
+    |
+273 |         except Exception:
+274 |             console.print(f"[red]{Exception}[/red]")
+275 |             exit(-1)
+    |             ^^^^
+276 |         try:
+277 |             install_update(extract_dir)
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+274 |             console.print(f"[red]{Exception}[/red]")
+    -             exit(-1)
+275 +             sys.exit(-1)
+276 |         try:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:278:16
+    |
+276 |         try:
+277 |             install_update(extract_dir)
+278 |         except Exception:
+    |                ^^^^^^^^^
+279 |             console.print(f"[red]{Exception}[/red]")
+280 |             exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> slipperypenguin.py:280:13
+    |
+278 |         except Exception:
+279 |             console.print(f"[red]{Exception}[/red]")
+280 |             exit(-1)
+    |             ^^^^
+281 |         console.print("[green]Update Successful![/green]")
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+279 |             console.print(f"[red]{Exception}[/red]")
+    -             exit(-1)
+280 +             sys.exit(-1)
+281 |         console.print("[green]Update Successful![/green]")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+F541 [*] f-string without any placeholders
+   --> slipperypenguin.py:284:29
+    |
+283 | if args.timeout:
+284 |     timeout_var = int(input(f"[yellow]Enter custom timeout value: [/yellow]"))
+    |                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+285 |
+286 | # Loading the gtfobins data
+    |
+help: Remove extraneous `f` prefix
+    |
+283 | if args.timeout:
+    -     timeout_var = int(input(f"[yellow]Enter custom timeout value: [/yellow]"))
+284 +     timeout_var = int(input("[yellow]Enter custom timeout value: [/yellow]"))
+285 |
+    |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> slipperypenguin.py:321:9
+    |
+319 |     try:
+320 |         # Updating gtfobins logic
+321 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+    |         ^^^^^^^^^^^^^^
+322 |         print(f"GTFOBins updated at {GTFO_FILE}")
+323 |     except Exception as e:
+    |
+help: Add explicit `check=False`
+    |
+320 |         # Updating gtfobins logic
+    -         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+321 +         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE], check=False)
+322 |         print(f"GTFOBins updated at {GTFO_FILE}")
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:323:12
+    |
+321 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+322 |         print(f"GTFOBins updated at {GTFO_FILE}")
+323 |     except Exception as e:
+    |            ^^^^^^^^^
+324 |         console.print(f"[red]Could not update GTFOBins, {e}[/red]")
+325 |     try:
+    |
+
+F821 Undefined name `tmp_path`
+   --> slipperypenguin.py:328:27
+    |
+326 |         download_update(update_info["url"], latest)
+327 |     except Exception as e:
+328 |         if os.path.exists(tmp_path):
+    |                           ^^^^^^^^
+329 |             os.unlink(tmp_path)
+330 |         raise e
+    |
+
+F821 Undefined name `tmp_path`
+   --> slipperypenguin.py:329:23
+    |
+327 |     except Exception as e:
+328 |         if os.path.exists(tmp_path):
+329 |             os.unlink(tmp_path)
+    |                       ^^^^^^^^
+330 |         raise e
+331 |     try:
+    |
+
+TRY201 Use `raise` without specifying exception name
+   --> slipperypenguin.py:330:15
+    |
+328 |         if os.path.exists(tmp_path):
+329 |             os.unlink(tmp_path)
+330 |         raise e
+    |               ^
+331 |     try:
+332 |         extract_dir = extract_update(update_info["url"])
+    |
+help: Remove exception name
+    |
+329 |             os.unlink(tmp_path)
+    -         raise e
+330 +         raise
+331 |     try:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:333:12
+    |
+331 |     try:
+332 |         extract_dir = extract_update(update_info["url"])
+333 |     except Exception:
+    |            ^^^^^^^^^
+334 |         console.print(f"[red]{Exception}[/red]")
+335 |         exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> slipperypenguin.py:335:9
+    |
+333 |     except Exception:
+334 |         console.print(f"[red]{Exception}[/red]")
+335 |         exit(-1)
+    |         ^^^^
+336 |     try:
+337 |         install_update(extract_dir)
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+334 |         console.print(f"[red]{Exception}[/red]")
+    -         exit(-1)
+335 +         sys.exit(-1)
+336 |     try:
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:338:12
+    |
+336 |     try:
+337 |         install_update(extract_dir)
+338 |     except Exception:
+    |            ^^^^^^^^^
+339 |         console.print(f"[red]{Exception}[/red]")
+340 |         exit(-1)
+    |
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> slipperypenguin.py:340:9
+    |
+338 |     except Exception:
+339 |         console.print(f"[red]{Exception}[/red]")
+340 |         exit(-1)
+    |         ^^^^
+341 |     console.print("[green]Update Successful![/green]")
+342 |     if args.update in ("run"):
+    |
+help: Replace `exit` with `sys.exit()`
+    |
+339 |         console.print(f"[red]{Exception}[/red]")
+    -         exit(-1)
+340 +         sys.exit(-1)
+341 |     console.print("[green]Update Successful![/green]")
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+PLR1722 Use `sys.exit()` instead of `exit`
+   --> slipperypenguin.py:345:9
+    |
+343 |         pass
+344 |     if args.update in ("close"):
+345 |         exit(0)
+    |         ^^^^
+help: Replace `exit` with `sys.exit()`
+    |
+344 |     if args.update in ("close"):
+    -         exit(0)
+345 +         sys.exit(0)
+346 |
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> slipperypenguin.py:349:10
+    |
+348 | # Enumerates SUIDs and checking capabilites
+349 | result = subprocess.run(
+    |          ^^^^^^^^^^^^^^
+350 |     ["find", "/", "-perm", "-4000", "-type", "f"], capture_output=True, text=True
+351 | )
+    |
+help: Add explicit `check=False`
+    |
+349 | result = subprocess.run(
+    -     ["find", "/", "-perm", "-4000", "-type", "f"], capture_output=True, text=True
+350 +     ["find", "/", "-perm", "-4000", "-type", "f"], check=False, capture_output=True, text=True
+351 | )
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+F541 [*] f-string without any placeholders
+   --> slipperypenguin.py:355:19
+    |
+353 | find_append["results"] = agg_result
+354 | if args.output in ("terminal", "both"):
+355 |     console.print(f"[yellow]SUIDs Found:[/yellow]")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+356 |     for suid in agg_result:
+357 |         console.print(f"  [green]{suid}[/green]")
+    |
+help: Remove extraneous `f` prefix
+    |
+354 | if args.output in ("terminal", "both"):
+    -     console.print(f"[yellow]SUIDs Found:[/yellow]")
+355 +     console.print("[yellow]SUIDs Found:[/yellow]")
+356 |     for suid in agg_result:
+    |
+
+F541 [*] f-string without any placeholders
+   --> slipperypenguin.py:358:19
+    |
+356 |     for suid in agg_result:
+357 |         console.print(f"  [green]{suid}[/green]")
+358 |     console.print(f"[yellow]END SUIDs[/yellow]\n")
+    |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+359 | if args.output in ("logs", "both"):
+360 |     with open(FIND_OUT, "w") as f:
+    |
+help: Remove extraneous `f` prefix
+    |
+357 |         console.print(f"  [green]{suid}[/green]")
+    -     console.print(f"[yellow]END SUIDs[/yellow]\n")
+358 +     console.print("[yellow]END SUIDs[/yellow]\n")
+359 | if args.output in ("logs", "both"):
+    |
+
+F841 [*] Local variable `e` is assigned to but never used
+   --> slipperypenguin.py:368:29
+    |
+366 |     with open("flags.json", "r") as file:
+367 |         flags = json.load(file)
+368 | except FileNotFoundError as e:
+    |                             ^
+369 |     console.print("[red]Flags load failure: {e}[/red]")
+370 |     traceback.print_exc()
+    |
+help: Remove assignment to unused variable `e`
+    |
+367 |         flags = json.load(file)
+    - except FileNotFoundError as e:
+368 + except FileNotFoundError:
+369 |     console.print("[red]Flags load failure: {e}[/red]")
+    |
+
+SIM117 [*] Use a single `with` statement with multiple contexts instead of nested `with` statements
+   --> slipperypenguin.py:390:5
+    |
+389 |   async def append(target: dict, b, data):
+390 | /     async with semaphore:
+391 | |         async with lock:
+    | |________________________^
+392 |               target[b] = data
+    |
+help: Combine `with` statements
+    |
+389 | async def append(target: dict, b, data):
+    -     async with semaphore:
+    -         async with lock:
+    -             target[b] = data
+390 +     async with semaphore, lock:
+391 +         target[b] = data
+392 |
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> slipperypenguin.py:401:12
+    |
+399 |     # if args.output in ("logs"):
+400 |     #    print("strings scan started")
+401 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+402 |     global timeout_append
+403 |     try:
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> slipperypenguin.py:402:12
+    |
+400 |     #    print("strings scan started")
+401 |     global strings_append
+402 |     global timeout_append
+    |            ^^^^^^^^^^^^^^
+403 |     try:
+404 |         process = await asyncio.create_subprocess_exec(
+    |
+
+RUF059 Unpacked variable `stderr` is never used
+   --> slipperypenguin.py:413:21
+    |
+411 |         )
+412 |         try:
+413 |             stdout, stderr = await asyncio.wait_for(
+    |                     ^^^^^^
+414 |                 process.communicate(), timeout=timeout_var
+415 |             )
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+412 |         try:
+    -             stdout, stderr = await asyncio.wait_for(
+413 +             stdout, _stderr = await asyncio.wait_for(
+414 |                 process.communicate(), timeout=timeout_var
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:426:12
+    |
+424 |             await append(timeout_append, b, "timeout")
+425 |             # return stdout.decode().splitlines()
+426 |     except Exception as e:
+    |            ^^^^^^^^^
+427 |         console.print(f"[red]strings_scan failure: {e}[/red]")
+428 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `strace_append` but no assignment is done
+   --> slipperypenguin.py:433:12
+    |
+431 | # strace scanning
+432 | async def strace_scan(b):
+433 |     global strace_append, timeout_append
+    |            ^^^^^^^^^^^^^
+434 |     try:
+435 |         process = await asyncio.create_subprocess_exec(
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> slipperypenguin.py:433:27
+    |
+431 | # strace scanning
+432 | async def strace_scan(b):
+433 |     global strace_append, timeout_append
+    |                           ^^^^^^^^^^^^^^
+434 |     try:
+435 |         process = await asyncio.create_subprocess_exec(
+    |
+
+RUF059 Unpacked variable `stdout` is never used
+   --> slipperypenguin.py:447:13
+    |
+445 |         )
+446 |         try:
+447 |             stdout, stderr = await asyncio.wait_for(
+    |             ^^^^^^
+448 |                 process.communicate(), timeout=timeout_var
+449 |             )
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+446 |         try:
+    -             stdout, stderr = await asyncio.wait_for(
+447 +             _stdout, stderr = await asyncio.wait_for(
+448 |                 process.communicate(), timeout=timeout_var
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:460:12
+    |
+458 |         if args.output in ("terminal", "both"):
+459 |             print(f"\nStrace for {b}: {strace_append.get(b, [])}")
+460 |     except Exception as e:
+    |            ^^^^^^^^^
+461 |         console.print(f"[red]strace_scan failure: {e}[/red]")
+462 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `gtfo_append` but no assignment is done
+   --> slipperypenguin.py:467:12
+    |
+465 | # gtfobins comp
+466 | async def gtfo_scan(b):
+467 |     global gtfo_append
+    |            ^^^^^^^^^^^
+468 |     try:
+469 |         binary_name = os.path.basename(b)
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:479:12
+    |
+477 |                         console.print(f"[magenta]--Results for: {b}--[/magenta]")
+478 |                         console.print(f"[cyan]  SUID exploit: {func_type}[/cyan]")
+479 |     except Exception as e:
+    |            ^^^^^^^^^
+480 |         console.print(f"[red]gtfo comp failure: {e}[/red]")
+481 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `getcap_append` but no assignment is done
+   --> slipperypenguin.py:486:12
+    |
+484 | # getcap scan
+485 | async def get_scan():
+486 |     global getcap_append
+    |            ^^^^^^^^^^^^^
+487 |     global strings_append
+488 |     global flags_append
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> slipperypenguin.py:487:12
+    |
+485 | async def get_scan():
+486 |     global getcap_append
+487 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+488 |     global flags_append
+489 |     global timeout_append
+    |
+
+PLW0602 Using global for `flags_append` but no assignment is done
+   --> slipperypenguin.py:488:12
+    |
+486 |     global getcap_append
+487 |     global strings_append
+488 |     global flags_append
+    |            ^^^^^^^^^^^^
+489 |     global timeout_append
+490 |     dt = str(datetime.now())
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> slipperypenguin.py:489:12
+    |
+487 |     global strings_append
+488 |     global flags_append
+489 |     global timeout_append
+    |            ^^^^^^^^^^^^^^
+490 |     dt = str(datetime.now())
+491 |     for flag in flags_append:
+    |
+
+RUF059 Unpacked variable `stderr` is never used
+   --> slipperypenguin.py:502:29
+    |
+500 |                 )
+501 |                 try:
+502 |                     stdout, stderr = await asyncio.wait_for(
+    |                             ^^^^^^
+503 |                         result.communicate(), timeout=timeout_var
+504 |                     )
+    |
+help: Prefix it with an underscore or any other dummy variable pattern
+    |
+501 |                 try:
+    -                     stdout, stderr = await asyncio.wait_for(
+502 +                     stdout, _stderr = await asyncio.wait_for(
+503 |                         result.communicate(), timeout=timeout_var
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:519:28
+    |
+517 |                                 f"\n[yellow]getcap: [/yellow][green]{cap_append}[/green]"
+518 |                             )
+519 |                     except Exception as e:
+    |                            ^^^^^^^^^
+520 |                         console.print(f"[red]get_scan failure: {e}[/red]")
+521 |                         traceback.print_exc()
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:524:45
+    |
+522 |                 except TimeoutError:
+523 |                     result.kill()
+524 |             except (asyncio.CancelledError, Exception) as e:
+    |                                             ^^^^^^^^^
+525 |                 console.print(f"getcap flag append failure {e}")
+526 |                 traceback.print_exc()
+    |
+
+S110 `try`-`except`-`pass` detected, consider logging the exception
+   --> slipperypenguin.py:533:13
+    |
+531 |               try:
+532 |                   await result.wait()
+533 | /             except (asyncio.CancelledError, Exception) as e:
+534 | |                 pass
+    | |____________________^
+535 |               finally:
+536 |                   timeout_append[dt] = "timeout"
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:533:45
+    |
+531 |             try:
+532 |                 await result.wait()
+533 |             except (asyncio.CancelledError, Exception) as e:
+    |                                             ^^^^^^^^^
+534 |                 pass
+535 |             finally:
+    |
+
+F841 [*] Local variable `e` is assigned to but never used
+   --> slipperypenguin.py:533:59
+    |
+531 |             try:
+532 |                 await result.wait()
+533 |             except (asyncio.CancelledError, Exception) as e:
+    |                                                           ^
+534 |                 pass
+535 |             finally:
+    |
+help: Remove assignment to unused variable `e`
+    |
+532 |                 await result.wait()
+    -             except (asyncio.CancelledError, Exception) as e:
+533 +             except (asyncio.CancelledError, Exception):
+534 |                 pass
+    |
+
+PLW0602 Using global for `timeout_append` but no assignment is done
+   --> slipperypenguin.py:540:12
+    |
+539 | async def timeouts(b):
+540 |     global timeout_append
+    |            ^^^^^^^^^^^^^^
+541 |     try:
+542 |         if args.output in ("terminal", "both"):
+    |
+
+ASYNC230 Async functions should not open files with blocking methods like `open`
+   --> slipperypenguin.py:547:18
+    |
+545 |                 console.print(f"\n[green] {t}[/green]")
+546 |         if args.output in ("logs", "both"):
+547 |             with open(TIMEOUT_OUT, "w") as f:
+    |                  ^^^^
+548 |                 json.dump(timeout_append, f)
+549 |     except Exception as e:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:549:12
+    |
+547 |             with open(TIMEOUT_OUT, "w") as f:
+548 |                 json.dump(timeout_append, f)
+549 |     except Exception as e:
+    |            ^^^^^^^^^
+550 |         console.print(f"[red]timeouts failure: {e}[/red]")
+551 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `strace_append` but no assignment is done
+   --> slipperypenguin.py:559:12
+    |
+557 | # strace results
+558 | def strace_write(b):
+559 |     global strace_append
+    |            ^^^^^^^^^^^^^
+560 |     try:
+561 |         if args.output in ("logs", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:565:12
+    |
+563 |             with open(STRACE_OUT, "w") as f:
+564 |                 json.dump(strace_append, f)
+565 |     except Exception as e:
+    |            ^^^^^^^^^
+566 |         console.print(f"[red]strace write failure: {e}[/red]")
+567 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> slipperypenguin.py:573:12
+    |
+571 | def strings_write(b):
+572 |     passer = {}
+573 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+574 |     try:
+575 |         if args.output in ("terminal", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:590:12
+    |
+588 |             with open(STR_OUT, "w", encoding="utf-8") as f:
+589 |                 json.dump(passer, f)
+590 |     except Exception as e:
+    |            ^^^^^^^^^
+591 |         console.print(f"[red]strings write failure: {e}[/red]")
+592 |         traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> slipperypenguin.py:593:9
+    |
+591 |         console.print(f"[red]strings write failure: {e}[/red]")
+592 |         traceback.print_exc()
+593 |         pass
+    |         ^^^^
+help: Remove unnecessary `pass`
+    |
+592 |         traceback.print_exc()
+    -         pass
+593 |
+    |
+
+PLW0602 Using global for `flags_append` but no assignment is done
+   --> slipperypenguin.py:600:12
+    |
+599 | def flags_write_print():
+600 |     global flags_append
+    |            ^^^^^^^^^^^^
+601 |     global strings_append
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> slipperypenguin.py:601:12
+    |
+599 | def flags_write_print():
+600 |     global flags_append
+601 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+
+PLW0602 Using global for `flags_append` but no assignment is done
+   --> slipperypenguin.py:606:12
+    |
+604 | # flags writing
+605 | async def flags_write(b):
+606 |     global flags_append
+    |            ^^^^^^^^^^^^
+607 |     global strings_append
+608 |     try:
+    |
+
+PLW0602 Using global for `strings_append` but no assignment is done
+   --> slipperypenguin.py:607:12
+    |
+605 | async def flags_write(b):
+606 |     global flags_append
+607 |     global strings_append
+    |            ^^^^^^^^^^^^^^
+608 |     try:
+609 |         if args.output in ("terminal", "both"):
+    |
+
+ASYNC230 Async functions should not open files with blocking methods like `open`
+   --> slipperypenguin.py:621:18
+    |
+620 |         if args.output in ("logs", "both"):
+621 |             with open("flags.json", "w") as file:
+    |                  ^^^^
+622 |                 json.dump(flags_append, file)
+623 |     except Exception as e:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:623:12
+    |
+621 |             with open("flags.json", "w") as file:
+622 |                 json.dump(flags_append, file)
+623 |     except Exception as e:
+    |            ^^^^^^^^^
+624 |         console.print(f"[red]Flags dump failure: {e}[/red]")
+625 |         traceback.print_exc()
+    |
+
+PLW0602 Using global for `cap_append` but no assignment is done
+   --> slipperypenguin.py:630:12
+    |
+628 | # getcap results writing
+629 | def getcap_write(b):
+630 |     global cap_append
+    |            ^^^^^^^^^^
+631 |     try:
+632 |         if args.output in ("logs", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:635:12
+    |
+633 |             with open(CAP_OUT, "w", encoding="utf-8") as f:
+634 |                 json.dump(cap_append, f)
+635 |     except Exception as e:
+    |            ^^^^^^^^^
+636 |         console.print(f"[red]gtfo error: {e}[/red]")
+637 |         traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> slipperypenguin.py:638:9
+    |
+636 |         console.print(f"[red]gtfo error: {e}[/red]")
+637 |         traceback.print_exc()
+638 |         pass
+    |         ^^^^
+help: Remove unnecessary `pass`
+    |
+637 |         traceback.print_exc()
+    -         pass
+638 |
+    |
+
+PLW0602 Using global for `gtfo_append` but no assignment is done
+   --> slipperypenguin.py:643:12
+    |
+641 | # gtfobins results writing
+642 | def gtfo_write(b):
+643 |     global gtfo_append
+    |            ^^^^^^^^^^^
+644 |     try:
+645 |         if args.output in ("logs", "both"):
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:648:12
+    |
+646 |             with open(GTFO_OUT, "w", encoding="utf-8") as f:
+647 |                 json.dump(gtfo_append, f)
+648 |     except Exception as e:
+    |            ^^^^^^^^^
+649 |         console.print(f"[red]gtfo write error : {e}[/red]")
+    |
+
+PLW0602 Using global for `b_exp` but no assignment is done
+   --> slipperypenguin.py:653:12
+    |
+652 | async def main():
+653 |     global b_exp
+    |            ^^^^^
+654 |     global agg_result
+655 |     with console.status("[blue]Sliding Around... [/blue]"):
+    |
+
+PLW0602 Using global for `agg_result` but no assignment is done
+   --> slipperypenguin.py:654:12
+    |
+652 | async def main():
+653 |     global b_exp
+654 |     global agg_result
+    |            ^^^^^^^^^^
+655 |     with console.status("[blue]Sliding Around... [/blue]"):
+656 |         try:
+    |
+
+F841 Local variable `results` is assigned to but never used
+   --> slipperypenguin.py:661:21
+    |
+659 |                     continue
+660 |                 try:
+661 |                     results = await asyncio.gather(
+    |                     ^^^^^^^
+662 |                         strings_scan(binary),
+663 |                         flags_write(binary),
+    |
+help: Remove assignment to unused variable `results`
+    |
+660 |                 try:
+    -                     results = await asyncio.gather(
+661 +                     await asyncio.gather(
+662 |                         strings_scan(binary),
+    |
+note: This is an unsafe fix and may change runtime behavior
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:676:49
+    |
+674 |                     b_exp[binary]["gtfo"] = gtfo_append.get(binary, [])
+675 |                     b_exp[binary]["timeouts"] = timeout_append.get(binary, [])
+676 |                 except (asyncio.CancelledError, Exception) as e:
+    |                                                 ^^^^^^^^^
+677 |                     console.print(f"[red]scan failure: {e}[/red]")
+678 |                     traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> slipperypenguin.py:679:21
+    |
+677 |                     console.print(f"[red]scan failure: {e}[/red]")
+678 |                     traceback.print_exc()
+679 |                     pass
+    |                     ^^^^
+680 |                 try:
+681 |                     getcap_write(binary)
+    |
+help: Remove unnecessary `pass`
+    |
+678 |                     traceback.print_exc()
+    -                     pass
+679 |                 try:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:686:24
+    |
+684 |                     strings_write(binary)
+685 |                     await get_scan()
+686 |                 except Exception as e:
+    |                        ^^^^^^^^^
+687 |                     console.print(f"[red]write failure: {e}[/red]")
+688 |                     traceback.print_exc()
+    |
+
+PIE790 [*] Unnecessary `pass` statement
+   --> slipperypenguin.py:689:21
+    |
+687 |                     console.print(f"[red]write failure: {e}[/red]")
+688 |                     traceback.print_exc()
+689 |                     pass
+    |                     ^^^^
+690 |         except Exception as e:
+691 |             console.print(f"[red]main failure: {e}[/red]")
+    |
+help: Remove unnecessary `pass`
+    |
+688 |                     traceback.print_exc()
+    -                     pass
+689 |         except Exception as e:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:690:16
+    |
+688 |                     traceback.print_exc()
+689 |                     pass
+690 |         except Exception as e:
+    |                ^^^^^^^^^
+691 |             console.print(f"[red]main failure: {e}[/red]")
+692 |             traceback.print_exc()
+    |
+
+ASYNC230 Async functions should not open files with blocking methods like `open`
+   --> slipperypenguin.py:696:18
+    |
+694 |         if args.htmlreport and b_exp:
+695 |             html = generate_report(b_exp, default_binary=next(iter(b_exp.keys()), None))
+696 |             with open(HTML_OUT, "w", encoding="utf-8") as f:
+    |                  ^^^^
+697 |                 f.write(html)
+698 |         if args.pdfreport:
+    |
+
+BLE001 Do not catch blind exception: `Exception`
+   --> slipperypenguin.py:704:16
+    |
+702 |         try:
+703 |             await timeouts(binary)
+704 |         except Exception as e:
+    |                ^^^^^^^^^
+705 |             console.print({e})
+706 |             return 0
+    |
+
+F541 [*] f-string without any placeholders
+   --> slipperypenguin.py:710:15
+    |
+709 | asyncio.run(main())
+710 | console.print(f"[bold bright_green]Done![/bold bright_green]")
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+help: Remove extraneous `f` prefix
+    |
+709 | asyncio.run(main())
+    - console.print(f"[bold bright_green]Done![/bold bright_green]")
+710 + console.print("[bold bright_green]Done![/bold bright_green]")
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> updatehelpers.py:1:1
+   |
+ 1 | / from rich.console import Console
+ 2 | | import urllib.request
+ 3 | | import urllib.error
+ 4 | | import json
+ 5 | | import os
+ 6 | | import sys
+ 7 | | import tempfile
+ 8 | | import hashlib
+ 9 | | import shutil
+10 | | import subprocess
+11 | | import tarfile
+   | |______________^
+12 |
+13 |   console = Console()
+   |
+help: Organize imports
+   |
+   - from rich.console import Console
+   - import urllib.request
+   - import urllib.error
+1  + import hashlib
+2  | import json
+3  | import os
+   - import sys
+   - import tempfile
+   - import hashlib
+4  | import shutil
+5  | import subprocess
+6  + import sys
+7  | import tarfile
+8  + import tempfile
+9  + import urllib.error
+10 + import urllib.request
+11 +
+12 + from rich.console import Console
+13 |
+   |
+
+F401 [*] `sys` imported but unused
+ --> updatehelpers.py:6:8
+  |
+4 | import json
+5 | import os
+6 | import sys
+  |        ^^^
+7 | import tempfile
+8 | import hashlib
+  |
+help: Remove unused import: `sys`
+  |
+5 | import os
+  - import sys
+6 | import tempfile
+  |
+
+BLE001 Do not catch blind exception: `Exception`
+  --> updatehelpers.py:36:12
+   |
+34 |                 raise RuntimeError("Checksum mismatch- download aborted")
+35 |         return tmp_path
+36 |     except Exception as e:
+   |            ^^^^^^^^^
+37 |         console.print(f"[red]{e}[/red]")
+38 |         return None
+   |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+  --> updatehelpers.py:64:9
+   |
+62 | def gtfo_update():
+63 |     try:
+64 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
+   |         ^^^^^^^^^^^^^^
+65 |         console.print("[green]GTFOBins updated at gtfobins.json[/green]")
+66 |     except Exception as e:
+   |
+help: Add explicit `check=False`
+   |
+63 |     try:
+   -         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
+64 +         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"], check=False)
+65 |         console.print("[green]GTFOBins updated at gtfobins.json[/green]")
+   |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+  --> updatehelpers.py:66:12
+   |
+64 |         subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
+65 |         console.print("[green]GTFOBins updated at gtfobins.json[/green]")
+66 |     except Exception as e:
+   |            ^^^^^^^^^
+67 |         console.print(f"[red]Updating GTFObins failed, {e}[/red]")
+   |
+
+PLW1510 `subprocess.run` without explicit `check` argument
+   --> updatehelpers.py:104:13
+    |
+102 |         # Execute update
+103 |         try:
+104 |             subprocess.run(
+    |             ^^^^^^^^^^^^^^
+105 |                 ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"]
+106 |             )
+    |
+help: Add explicit `check=False`
+    |
+104 |             subprocess.run(
+    -                 ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"]
+105 +                 ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"], check=False
+106 |             )
+    |
+note: This suggestion may be incorrect or produce invalid syntax. It requires manual review and cannot be applied automatically
+
+BLE001 Do not catch blind exception: `Exception`
+   --> updatehelpers.py:118:16
+    |
+116 |             console.print("[green]Update Successful![/green]")
+117 |
+118 |         except Exception as e:
+    |                ^^^^^^^^^
+119 |             console.print(f"[red]Update failed: {e}[/red]")
+120 |             return None
+    |
+
+Found 200 errors.
+[*] 40 fixable with `--fix` (30 unsafe fixes available with `--fix --unsafe-fixes`).

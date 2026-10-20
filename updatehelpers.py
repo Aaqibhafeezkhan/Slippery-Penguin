@@ -1,122 +1,235 @@
-from rich.console import Console
-import urllib.request
-import urllib.error
+"""
+updatehelpers.py - self-update machinery for Slippery Penguin.
+
+Server contract
+---------------
+GET {UPDATE_URL}{current_version}
+
+Responds with JSON:
+    {
+      "latest": "2.3.8",
+      "url":    "https://.../slipperypenguin-2.3.8.tar.gz",
+      "sha256": "<sha256 hex digest of that tarball>"
+    }
+
+Any network failure or malformed payload is treated as "no update available"
+rather than a fatal error.
+"""
+
+from __future__ import annotations
+
+import hashlib
 import json
 import os
-import sys
-import tempfile
-import hashlib
 import shutil
-import subprocess
 import tarfile
-
+import tempfile
+import urllib.error
+import urllib.request
+from pathlib import Path
+from rich.console import Console
 console = Console()
-
-# Version
-__version__ = "2.3.7"
 UPDATE_URL = "https://eclecticelectronics.fly.dev/api/check-update/"
 
+# Only these may be written into the install directory by an update.
+# Everything else in the tarball is ignored. This is the primary defence
+# against a compromised or malformed release package.
+ALLOWED_FILES = frozenset({
+    "slipperypenguin.py",
+    "art.txt",
+    "flags.json",
+})
 
-def download_update(url, expected_hash):
+# Must be present in the tarball or the package is rejected as incomplete.
+REQUIRED_FILES = ("slipperypenguin.py", "art.txt", "flags.json")
+
+_TIMEOUT = 10
+_CHUNK = 65536
+
+
+def parse_version(text):
+    """'2.3.10' -> (2, 3, 10).
+
+    Comparing version strings directly ranks '2.3.10' below '2.3.9'.
+    Splitting into integers makes the comparison numeric.
+    """
+    parts = []
+    for piece in str(text).strip().split("."):
+        digits = "".join(ch for ch in piece if ch.isdigit())
+        parts.append(int(digits) if digits else 0)
+    return tuple(parts)
+
+
+def check_for_update(current_version):
+    """Ask the server what the latest version is. Returns dict or None."""
+    try:
+        request = urllib.request.Request(
+            UPDATE_URL + str(current_version),
+            headers={"User-Agent": f"SlipperyPenguin/{current_version}"},
+        )
+        with urllib.request.urlopen(request, timeout=_TIMEOUT) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, json.JSONDecodeError, OSError) as exc:
+        console.print(f"[red]Could not reach update server: {exc}[/red]")
+        return None
+
+    if not isinstance(payload, dict):
+        console.print("[red]Update server returned an unexpected payload.[/red]")
+        return None
+
+    return payload
+
+
+def download_release(url, expected_hash):
+    """Download the tarball and verify its SHA-256. Returns path or None."""
     fd, tmp_path = tempfile.mkstemp(suffix=".tar.gz")
     os.close(fd)
     hasher = hashlib.sha256()
+
     try:
-        with (
-            urllib.request.urlopen(url, timeout=10) as resp,
-            open(tmp_path, "wb") as out,
-        ):
-            while chunk := resp.read(65536):
+        with urllib.request.urlopen(url, timeout=_TIMEOUT) as response, \
+                open(tmp_path, "wb") as out:
+            while True:
+                chunk = response.read(_CHUNK)
+                if not chunk:
+                    break
                 out.write(chunk)
                 hasher.update(chunk)
-            if hasher.hexdigest() != expected_hash:
-                os.unlink(tmp_path)
-                raise RuntimeError("Checksum mismatch- download aborted")
+
+        actual = hasher.hexdigest()
+        if actual != expected_hash:
+            raise RuntimeError(
+                f"checksum mismatch (got {actual}, expected {expected_hash})"
+            )
         return tmp_path
-    except Exception as e:
-        console.print(f"[red]{e}[/red]")
+
+    except Exception as exc:
+        print(f"Download failed: {exc}")
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
         return None
 
 
-def extract_update(tmp_path):
-    extract_dir = tempfile.mkdtemp()
-    with tarfile.open(tmp_path, "r:gz") as tar:
-        tar.extractall(extract_dir, filter="data")
-        required = ["slipperypenguin.py", "art.txt", "flags.json"]
-        extracted_names = os.listdir(extract_dir)
-        for name in required:
-            if name not in extracted_names:
-                raise RuntimeError("Incomplete package, download aborted")
+def _validate_members(tar):
+    """Reject absolute paths, traversal, symlinks, and device nodes.
+
+    Done by hand rather than relying on filter='data', which needs
+    Python 3.12+.
+    """
+    for member in tar.getmembers():
+        name = member.name
+        if name.startswith("/") or ".." in Path(name).parts:
+            raise RuntimeError(f"unsafe path in archive: {name}")
+        if member.issym() or member.islnk() or member.isdev():
+            raise RuntimeError(f"unsafe member type in archive: {name}")
+        yield member
+
+
+def extract_release(tarball_path):
+    """Unpack into a temp dir, verifying required files are present."""
+    extract_dir = tempfile.mkdtemp(prefix="slipperypenguin-update-")
+
+    try:
+        with tarfile.open(tarball_path, "r:gz") as tar:
+            tar.extractall(extract_dir, members=_validate_members(tar))
+    except (tarfile.TarError, RuntimeError, OSError) as exc:
+        shutil.rmtree(extract_dir, ignore_errors=True)
+        console.print(f"[red]Could not unpack the update: {exc}[/red]")
+        return None
+
+    present = set(os.listdir(extract_dir))
+    missing = [name for name in REQUIRED_FILES if name not in present]
+    if missing:
+        shutil.rmtree(extract_dir, ignore_errors=True)
+        console.print(f"[red]Incomplete package (missing: {', '.join(missing)}); aborting.[/red]")
+        return None
+
     return extract_dir
 
 
-def install_update(extract_dir):
-    install_root = os.path.dirname(os.path.abspath(__file__))
-    for fname in os.listdir(extract_dir):
-        src = os.path.join(extract_dir, fname)
-        dst = os.path.join(install_root, fname)
-        os.replace(src, dst)
-    shutil.rmtree(extract_dir)
+def install_release(extract_dir, install_root=None):
+    """Copy whitelisted files into the install directory.
+
+    Each file is staged under a .new suffix and then os.replace()d into
+    position, so an interruption cannot leave a half-written script behind.
+    """
+    if install_root is None:
+        install_root = os.path.dirname(os.path.abspath(__file__))
+
+    replaced = []
+    for name in sorted(os.listdir(extract_dir)):
+        if name not in ALLOWED_FILES:
+            continue
+
+        src = os.path.join(extract_dir, name)
+        if not os.path.isfile(src):
+            continue
+
+        dst = os.path.join(install_root, name)
+        staged = dst + ".new"
+
+        shutil.copy2(src, staged)
+        os.replace(staged, dst)
+        replaced.append(name)
+
+    shutil.rmtree(extract_dir, ignore_errors=True)
+    return replaced
 
 
-def gtfo_update():
+def run_update(current_version, assume_yes=False):
+    """Full check -> confirm -> download -> install cycle.
+
+    Returns True if any files were replaced.
+    """
+    info = check_for_update(current_version)
+    if info is None:
+        return False
+
+    latest = str(info.get("latest", "")).strip()
+    if not latest:
+        console.print("[red]Update server did not report a version.[/red]")
+        return False
+
+    current_t = parse_version(current_version)
+    latest_t = parse_version(latest)
+
+    if latest_t == current_t:
+        console.print(f"[purple]Already on the latest version ({current_version}).[/purple]")
+        return False
+
+
+    console.print(f"[purple]Update available: {latest} (you are running {current_version})[/purple]")
+
+    if not assume_yes:
+        answer = input("Update now? [y/N] ").strip().lower()
+        if answer not in ("y", "yes"):
+            console.print("[yellow]Update cancelled.[/yellow]")
+            return False
+
+    url = info.get("url")
+    expected_hash = info.get("sha256")
+    if not url or not expected_hash:
+        console.print("[red]Update server supplied no 'url'/'sha256'; aborting.[/red]")
+        return False
+
+    tarball = download_release(url, expected_hash)
+    if tarball is None:
+        return False
+
     try:
-        subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"])
-        console.print("[green]GTFOBins updated at gtfobins.json[/green]")
-    except Exception as e:
-        console.print(f"[red]Updating GTFObins failed, {e}[/red]")
+        extract_dir = extract_release(tarball)
+    finally:
+        if os.path.exists(tarball):
+            os.unlink(tarball)
 
+    if extract_dir is None:
+        return False
 
-def update_chk():
-    try:
-        with urllib.request.urlopen(UPDATE_URL + __version__, timeout=10) as resp:
-            update_info = json.loads(resp.read().decode())
-    except (urllib.error.URLError, json.JSONDecodeError) as e:
-        console.print(f"[red]Could not reach update server: {e}[/red]")
-        return None
+    replaced = install_release(extract_dir)
+    if not replaced:
+        console.print("[red]Package contained no recognised files; nothing replaced.[/red]")
+        return False
 
-    latest = update_info.get("latest", "")
+    console.print(f"[red]Updated to {latest}. Replaced: {', '.join(replaced)}[/red]")
+    return True
 
-    if latest == __version__:
-        console.print("[green]Already on latest version[/green]")
-        return None
-
-    if latest < __version__:
-        console.print("[yellow]You're on the development version [/yellow]")
-        return None
-
-    if latest > __version__:
-        console.print(
-            f"[magenta]Update available: {latest} (you are running {__version__})[/magenta]"
-        )
-        console.print(
-            "[green]Would you like to update, or stay on the current version? (y to update):[/green]"
-        )
-        console.print("[magenta](y/n)[/magenta]")
-        usr_in = input().lower()
-
-        if usr_in != "y":
-            console.print("[yellow]Update cancelled[/yellow]")
-            return None
-
-        # Execute update
-        try:
-            subprocess.run(
-                ["curl", "https://gtfobins.org/api.json", "-o", "gtfobins.json"]
-            )
-            console.print("[green]GTFOBins updated at gtfobins.json[/green]")
-
-            downloaded_path = download_update(update_info["url"], latest)
-            if downloaded_path is None:
-                console.print("[red]Download failed, aborting update[/red]")
-                return None
-
-            extract_dir = extract_update(downloaded_path)
-            install_update(extract_dir)
-            console.print("[green]Update Successful![/green]")
-
-        except Exception as e:
-            console.print(f"[red]Update failed: {e}[/red]")
-            return None
-
-        return update_info
