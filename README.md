@@ -58,8 +58,8 @@ python3 slipperypenguin.py --update-gtfobins
 ```
 Downloading the .tar.gz from www.eclecticelectrionics.com (https://github.com/stlynnxx/EclecticElectronics)
 ```bash
-curl -L https://eclecticelectronics.fly.dev/api/download/2.3.8 -o slipperypenguin-2.3.8.tar.gz
-sha256sum slipperypenguin-2.3.8.tar.gz
+curl -L https://eclecticelectronics.fly.dev/api/download/2.4.0 -o slipperypenguin-2.4.0.tar.gz
+sha256sum slipperypenguin-2.4.0.tar.gz
 
 pip install -r requirements.txt
 
