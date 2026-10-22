@@ -317,11 +317,53 @@ def generate_report(b_exp, default_binary=None):
                 const resultsDiv = document.getElementById('results');
                 const allData = JSON.parse(document.getElementById('all-data').textContent);
 
+                /**
+                 * Normalises a field value into a display string.
+                 *
+                 * - flags   : array of {string, severity} objects  => "string (severity)"
+                 * - timeouts: a bare "timeout" string or an array   => plain text
+                 * - others  : array of strings                      => joined lines
+                 *
+                 * Returns null when there is nothing to display.
+                 */
+                function formatContent(type, raw) {
+                    if (!raw || (Array.isArray(raw) && raw.length === 0)) {
+                        return null;
+                    }
+
+                    if (type === 'flags' && Array.isArray(raw)) {
+                        const lines = raw.slice(0, 50).map(function(f) {
+                            if (f && typeof f === 'object') {
+                                return (f.string || 'N/A') + ' (' + (f.severity || 'N/A') + ')';
+                            }
+                            return String(f);
+                        });
+                        return lines.join('\\n');
+                    }
+
+                    if (type === 'timeouts') {
+                        // Stored as a bare string ("timeout") for a single hit,
+                        // or as an array when multiple scans timed out.
+                        if (typeof raw === 'string') {
+                            return raw;
+                        }
+                        if (Array.isArray(raw)) {
+                            return raw.slice(0, 50).map(String).join('\\n');
+                        }
+                    }
+
+                    if (Array.isArray(raw)) {
+                        return raw.slice(0, 50).join('\\n');
+                    }
+
+                    return String(raw);
+                }
+
                 function render(binary) {
                     const data = allData[binary] || {};
                     resultsDiv.innerHTML = '';
 
-                    ['strings', 'strace', 'flags', 'gtfo'].forEach(function(type) {
+                    ['strings', 'strace', 'flags', 'gtfo', 'timeouts'].forEach(function(type) {
                         const section = document.createElement('div');
                         section.className = 'section';
 
@@ -329,10 +371,10 @@ def generate_report(b_exp, default_binary=None):
                         heading.textContent = type.charAt(0).toUpperCase() + type.slice(1);
                         section.appendChild(heading);
 
-                        const content = data[type] || [];
-                        if (content.length > 0) {
+                        const displayText = formatContent(type, data[type]);
+                        if (displayText !== null) {
                             const pre = document.createElement('pre');
-                            pre.textContent = content.slice(0, 50).join('\\n');
+                            pre.textContent = displayText;
                             section.appendChild(pre);
                         } else {
                             const msg = document.createElement('p');

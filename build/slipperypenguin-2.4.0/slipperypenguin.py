@@ -11,7 +11,7 @@ except ImportError:
     updatehelpers = None
 console = Console()
 # Version
-__version__ = "2.3.8"
+__version__ = "2.4.0"
 
 # art is from https://www.asciiart.eu/art/2e5ef0982cbcf027
 with open("art.txt", "r") as file:
@@ -269,48 +269,49 @@ if args.update is None and updatehelpers is not None:
     update_info = updatehelpers.check_for_update(__version__)
     if update_info is None:
         # Original behaviour on an unreachable server was to abort; kept.
-        sys.exit(1)
+        console.print("[yellow]Skipping update check (server unreachable).[/yellow]")
+        # Changed from sys.exit(1): don't kill the scan just because update server is down.
+    else:
+        latest = str(update_info.get("latest", "")).strip()
 
-    latest = str(update_info.get("latest", "")).strip()
-
-    # Numeric comparison. Dev branch (running ahead of the published
-    # release) and matching versions both fall through silently -
-    # same as the old `if latest < __version__: pass` and the
-    # `if latest == __version__: pass`, but now '2.3.10' > '2.3.9'.
-    if updatehelpers.parse_version(latest) > updatehelpers.parse_version(__version__):
-        console.print(
-            f"[magenta] Update available: {latest} (you are running {__version__}) [/magenta]"
-        )
-        console.print(
-            "[green] Would you like to update, or stay on the current version? (y to update): [/green]"
-        )
-        console.print("[magenta](y/n)[/magenta]")
-        usr_in = input()
-        usr_in = usr_in.lower()
-        if usr_in == "n":
-            pass
-        else:
-            # Updating gtfobins logic
-            try:
-                subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
-                print(f"GTFOBins updated at {GTFO_FILE}")
-            except Exception as e:
-                console.print(f"[red]Could not update GTFOBins, {e}[/red]")
-
-            url = update_info.get("url")
-            sha = update_info.get("sha256")
-            if not url or not sha:
-                console.print("[red]Update server supplied no 'url'/'sha256'.[/red]")
+        # Numeric comparison. Dev branch (running ahead of the published
+        # release) and matching versions both fall through silently -
+        # same as the old `if latest < __version__: pass` and the
+        # `if latest == __version__: pass`, but now '2.3.10' > '2.3.9'.
+        if updatehelpers.parse_version(latest) > updatehelpers.parse_version(__version__):
+            console.print(
+                f"[magenta] Update available: {latest} (you are running {__version__}) [/magenta]"
+            )
+            console.print(
+                "[green] Would you like to update, or stay on the current version? (y to update): [/green]"
+            )
+            console.print("[magenta](y/n)[/magenta]")
+            usr_in = input()
+            usr_in = usr_in.lower()
+            if usr_in == "n":
+                pass
             else:
-                tarball = updatehelpers.download_release(url, sha)
-                if tarball is not None:
-                    extract_dir = updatehelpers.extract_release(tarball)
-                    if extract_dir is not None:
-                        if updatehelpers.install_release(extract_dir):
-                            console.print("[green]Update Successful![/green]")
-                            console.print("[yellow]Restart to run the new version.[/yellow]")
-                        else:
-                            console.print("[red]Package contained no recognised files; nothing replaced.[/red]")
+                # Updating gtfobins logic
+                try:
+                    subprocess.run(["curl", "https://gtfobins.org/api.json", "-o", GTFO_FILE])
+                    print(f"GTFOBins updated at {GTFO_FILE}")
+                except Exception as e:
+                    console.print(f"[red]Could not update GTFOBins, {e}[/red]")
+
+                url = update_info.get("url")
+                sha = update_info.get("sha256")
+                if not url or not sha:
+                    console.print("[red]Update server supplied no 'url'/'sha256'.[/red]")
+                else:
+                    tarball = updatehelpers.download_release(url, sha)
+                    if tarball is not None:
+                        extract_dir = updatehelpers.extract_release(tarball)
+                        if extract_dir is not None:
+                            if updatehelpers.install_release(extract_dir):
+                                console.print("[green]Update Successful![/green]")
+                                console.print("[yellow]Restart to run the new version.[/yellow]")
+                            else:
+                                console.print("[red]Package contained no recognised files; nothing replaced.[/red]")
 elif updatehelpers is None:
     console.print("[yellow]updatehelpers.py not found; skipping update check.[/yellow]")
 
@@ -338,6 +339,7 @@ FIND_OUT = os.path.join(RUN_DIR, "find-out.json")
 STRACE_OUT = os.path.join(RUN_DIR, "strace-out.json")
 TIMEOUT_OUT = os.path.join(RUN_DIR, "timeout-out.json")
 GTFO_OUT = os.path.join(RUN_DIR, "gfto-out.json")
+FLAGS_OUT = os.path.join(RUN_DIR, "flags-out.json")
 HTML_OUT = os.path.join(RUN_DIR, "html-out.html")
 
 
@@ -485,20 +487,21 @@ async def gtfo_scan(b):
         traceback.print_exc()
 
 
-# getcap scan
-async def get_scan():
+# getcap scan - FIXED: now takes binary argument and iterates flags list correctly
+async def get_scan(b):
     global getcap_append
     global strings_append
-    global flags_append
     global timeout_append
     dt = str(datetime.now())
-    for flag in flags_append:
-        if flag["string"] in strings_append.get(flag, {}):
+    # Get the strings for THIS binary, not iterate flags_append
+    binary_strings = strings_append.get(b, [])
+    for flag in flags:  # Iterate the flag DEFINITIONS list, not flags_append dict
+        if flag["string"] in binary_strings:
             try:
                 result = await asyncio.create_subprocess_exec(
                     "getcap",
                     "-r",
-                    flag,
+                    b,  # Scan the actual binary path, not the flag string
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,
                 )
@@ -506,8 +509,6 @@ async def get_scan():
                     stdout, stderr = await asyncio.wait_for(
                         result.communicate(), timeout=timeout_var
                     )
-                    # await append(getcap_append, dt, stdout.decode().splitlines())
-                    # getcap_append[dt] = stdout.decode().splitlines()
                     try:
                         if stdout:
                             cap_append.setdefault(dt, [])
@@ -515,11 +516,10 @@ async def get_scan():
                                 f"Cap check {dt}: {result.stdout.decode().splitlines()}"
                             ]
                             await append(getcap_append, dt, cap_item)
-                            # cap_append[dt].append(cap_item)
-                        if args.output in ("terminal", "both"):
-                            console.print(
-                                f"\n[yellow]getcap: [/yellow][green]{cap_append}[/green]"
-                            )
+                            if args.output in ("terminal", "both"):
+                                console.print(
+                                    f"\n[yellow]getcap: [/yellow][green]{cap_append}[/green]"
+                                )
                     except Exception as e:
                         console.print(f"[red]get_scan failure: {e}[/red]")
                         traceback.print_exc()
@@ -529,9 +529,7 @@ async def get_scan():
                 console.print(f"getcap flag append failure {e}")
                 traceback.print_exc()
             else:
-                console.print(
-                    "[magenta]No strings matches found for getcap scan[/magenta]"
-                )
+                pass
             try:
                 await result.wait()
             except (asyncio.CancelledError, Exception) as e:
@@ -597,32 +595,31 @@ def strings_write(b):
         pass
 
 
-# flags writing
-
-
+# flags writing - no longer in gather(), called AFTER strings_scan completes
 def flags_write_print():
     global flags_append
     global strings_append
 
 
-# flags writing
-async def flags_write(b):
+# flags writing - REMOVED await keyword, kept sync to match original style
+def flags_write(b):
     global flags_append
     global strings_append
     try:
-        if args.output in ("terminal", "both"):
-            for flag in flags:
-                if flag["string"] in strings_append.get(b, {}):
-                    flags_append.setdefault(b, [])
-                    appendItem = {
-                        "string": flag["string"],
-                        "severity": flag["severity"],
-                        "context": flag.get("context", ""),
-                    }
-                    flags_append[b].append(appendItem)
+        for flag in flags:
+            if flag["string"] in strings_append.get(b, []):
+                flags_append.setdefault(b, [])
+                appendItem = {
+                    "string": flag["string"],
+                    "severity": flag["severity"],
+                    "context": flag.get("context", ""),
+                }
+                flags_append[b].append(appendItem)
+                if args.output in ("terminal", "both"):
+                    console.print(f"[magenta]{flag['severity']}[/magenta]: {flag['string']}")
 
         if args.output in ("logs", "both"):
-            with open("flags.json", "w") as file:
+            with open(FLAGS_OUT, "w") as file:
                 json.dump(flags_append, file)
     except Exception as e:
         console.print(f"[red]Flags dump failure: {e}[/red]")
@@ -662,14 +659,20 @@ async def main():
                 if not binary.startswith("/usr/bin"):
                     continue
                 try:
+                    # FIXED: strings_scan MUST complete BEFORE flags_write runs
+                    # flags_write matches flag strings against strings_append[binary]
+                    # If run concurrently via gather(), flags_write executes first and sees empty list
                     results = await asyncio.gather(
                         strings_scan(binary),
-                        flags_write(binary),
                         strace_scan(binary),
                         gtfo_scan(binary),
                         timeouts(binary),
                         return_exceptions=True,
                     )
+
+                    # NOW safe: strings_append[binary] is populated
+                    flags_write(binary)
+                    await get_scan(binary)  # Also needs to run after strings_scan
 
                     b_exp.setdefault(binary, {})
                     b_exp[binary]["strings"] = strings_append.get(binary, [])
@@ -686,7 +689,6 @@ async def main():
                     gtfo_write(binary)
                     strace_write(binary)
                     strings_write(binary)
-                    await get_scan()
                 except Exception as e:
                     console.print(f"[red]write failure: {e}[/red]")
                     traceback.print_exc()
