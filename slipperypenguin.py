@@ -60,6 +60,12 @@ parser.add_argument(
 parser.add_argument(
     "--check", "-chk", action="store_true", help="Check the current version"
 )
+parser.add_argument(
+    "--skip-update-check",
+    "-suc",
+    action="store_true",
+    help="Skip the automatic update check at startup",
+)
 parser.add_argument("--manual", "-man", action="store_true", help="Manual")
 parser.add_argument(
     "--htmlreport", "-hr", action="store_true", help="Save results in HTML file"
@@ -265,7 +271,7 @@ if args.check:
 
 # Startup update check (interactive). Skipped when --update was passed,
 # since the explicit update above already ran.
-if args.update is None and updatehelpers is not None:
+if args.update is None and not args.skip_update_check and updatehelpers is not None:
     update_info = updatehelpers.check_for_update(__version__)
     if update_info is None:
         # Original behaviour on an unreachable server was to abort; kept.
