@@ -213,11 +213,10 @@ flowchart TD
 
 # Contributing
 
-Slippery Penguin is always open for contributions!
-
-Check out the dev branch if you want to contribute to the newest
-features (you can read my daily work and goals in the notes file),
-or check out the issues list!
+This is the dev branch, where I merge PR requests into and also push my ongoing work to.
+If there are any issues listed, you are welcome to take them on and send your PR in.
+If you use the program and want to make any changes or additions, feel free to fork it and send a PR to this branch for review!
+I'm also always looking for help making flags.json as robust as possible. 
 
 If you find a bug in the current master release, I would check the dev 
 version to see if it's been fixed but not yet released on master
