@@ -156,7 +156,7 @@ def generate_PDF(b_exp):
                                         )
                                         if display:
                                             text(
-                                                f"{flag.get('string', 'N/A')} ({flag.get('severity', 'N/A')})\n"
+                                                f"{flag.get('string', 'N/A')} ({flag.get('severity', 'N/A')})-{flag.get('context', 'N/A')}\n"
                                             )
                                         else:
                                             text(flags if flags else "No data")
