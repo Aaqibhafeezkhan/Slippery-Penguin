@@ -1,5 +1,5 @@
 import signal, subprocess, os, json, argparse, sys, shutil, urllib.request, tempfile, hashlib, asyncio, traceback
-import tarfile, urllib.error
+import tarfile, urllib.error, csv
 from datetime import datetime
 from rich.console import Console
 from htmlgenerator import generate_report, generate_PDF
@@ -72,6 +72,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--pdfreport", "-pdf", action="store_true", help="Save results in PDF file"
+)
+parser.add_argument(
+    "--csvreport", "-cr", action="store_true", help="Save findings in a CSV file"
 )
 
 
@@ -347,6 +350,7 @@ TIMEOUT_OUT = os.path.join(RUN_DIR, "timeout-out.json")
 GTFO_OUT = os.path.join(RUN_DIR, "gfto-out.json")
 FLAGS_OUT = os.path.join(RUN_DIR, "flags-out.json")
 HTML_OUT = os.path.join(RUN_DIR, "html-out.html")
+CSV_OUT = os.path.join(RUN_DIR, "report.csv")
 
 
 border = "-----"
@@ -656,6 +660,46 @@ def gtfo_write(b):
         console.print(f"[red]gtfo write error : {e}[/red]")
 
 
+
+def write_csv_report(results, output_path):
+    fieldnames = ["binary", "finding_type", "finding", "severity", "context"]
+    with open(output_path, "w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for binary, binary_data in sorted(results.items()):
+            for finding_type in ("strings", "strace", "flags", "gtfo", "timeouts"):
+                findings = binary_data.get(finding_type)
+                if not findings:
+                    continue
+
+                if isinstance(findings, (str, bytes)):
+                    findings = [findings]
+                elif isinstance(findings, dict):
+                    findings = list(findings.values())
+
+                for finding in findings:
+                    if not finding:
+                        continue
+
+                    row = {
+                        "binary": binary,
+                        "finding_type": finding_type,
+                        "finding": "",
+                        "severity": "",
+                        "context": "",
+                    }
+                    if finding_type == "flags" and isinstance(finding, dict):
+                        row["finding"] = str(finding.get("string") or "").strip()
+                        row["severity"] = str(finding.get("severity") or "").strip()
+                        row["context"] = str(finding.get("context") or "").strip()
+                    else:
+                        row["finding"] = str(finding).strip()
+
+                    if row["finding"] or row["severity"] or row["context"]:
+                        writer.writerow(row)
+
+
 async def main():
     global b_exp
     global agg_result
@@ -710,6 +754,8 @@ async def main():
         if args.pdfreport:
             pdf = generate_PDF(b_exp)
             HTML(string=pdf).write_pdf(f"{RUN_DIR}/report_{RUN_ID}.pdf")
+        if args.csvreport:
+            write_csv_report(b_exp, CSV_OUT)
 
         try:
             await timeouts(binary)
