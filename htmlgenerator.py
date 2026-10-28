@@ -179,7 +179,7 @@ def generate_PDF(b_exp):
                         with tag("pre"):
                             gtfo = binary_data.get("gtfo", [])
                             if not gtfo:
-                                text("No results available")
+                                text("No matches found")
                             elif isinstance(gtfo, list):
                                 text("\n".join(str(s) for s in gtfo[:50]))
                             else:
