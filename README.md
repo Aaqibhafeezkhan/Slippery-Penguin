@@ -91,6 +91,7 @@ can afford to do so, every penny helps out!
 | `--manual` | `-man` | flag | Display help/usage information |
 | `--htmlreport` | `-hr` | flag | Save results in HTML file |
 | `--pdfreport` | `-pdf` | flag | Save results in PDF file |
+| `--csvreport` | `-cr` | flag | Save findings in CSV file |
 
 ---
 
@@ -118,6 +119,11 @@ python3 slipperypenguin.py -o logs -pdf
 #### Full scan with JSON, HTML, and PDF Reporting
 ```bash
 python3 slipperypenguin.py -o logs -hr -pdf
+```
+
+#### Full scan with CSV Reporting
+```bash
+python3 slipperypenguin.py -o logs -cr
 ```
 
 
@@ -158,7 +164,8 @@ slipperypenguin/
 │       ├── strace-out.json
 │       ├── timeout-out.json
 │       ├── gfto-out.json
-│       └── html-out.html
+│       ├── html-out.html
+│       └── report.csv
 └── requirements.txt
 ```
 ## Technical Details
