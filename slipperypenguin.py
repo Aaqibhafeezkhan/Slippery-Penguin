@@ -483,15 +483,46 @@ async def gtfo_scan(b):
     global gtfo_append
     try:
         binary_name = os.path.basename(b)
-        entry = gtfo_data["executables"].get(binary_name)
-        if entry:
-            functions = entry.get("functions", {})
-            for func_type, methods in functions.items():
+
+        # Check gtfo_data structure exists
+        executables = gtfo_data.get("executables", {})
+        if not executables:
+            # console.print(f"[dim]DEBUG: gtfo_data.executables is empty[/dim]")
+            return
+
+        entry = executables.get(binary_name)
+        if not entry:
+            console.print(f"[dim]ℹ No GTFOBins entry for {binary_name} (not in database)[/dim]")
+            return
+
+        functions = entry.get("functions", {})
+        for func_type, methods in functions.items():
+            # Handle both list and dict contexts
+            if isinstance(methods, list):
                 for method in methods:
-                    contexts = method.get("contexts", {})
+                    contexts = method.get("contexts", [])
                     if "suid" in contexts:
                         console.print(f"[magenta]--Results for: {b}--[/magenta]")
                         console.print(f"[cyan]  SUID exploit: {func_type}[/cyan]")
+
+                        gtfo_append.setdefault(b, [])
+                        gtfo_append[b].append({
+                            "type": func_type,
+                            "context": "suid",
+                            "method": str(method)
+                        })
+            elif isinstance(methods, dict):
+                # Sometimes methods is a dict of {context: commands}
+                if "suid" in methods:
+                    console.print(f"[magenta]--Results for: {b}--[/magenta]")
+                    console.print(f"[cyan]  SUID exploit: {func_type}[/cyan]")
+
+                    gtfo_append.setdefault(b, [])
+                    gtfo_append[b].append({
+                        "type": func_type,
+                        "context": "suid",
+                        "method": str(methods["suid"])
+                    })
     except Exception as e:
         console.print(f"[red]gtfo comp failure: {e}[/red]")
         traceback.print_exc()

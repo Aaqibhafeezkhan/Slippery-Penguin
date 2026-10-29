@@ -156,7 +156,7 @@ def generate_PDF(b_exp):
                                         )
                                         if display:
                                             text(
-                                                f"{flag.get('string', 'N/A')} ({flag.get('severity', 'N/A')})\n"
+                                                f"{flag.get('string', 'N/A')} ({flag.get('severity', 'N/A')})-{flag.get('context', 'N/A')}\n"
                                             )
                                         else:
                                             text(flags if flags else "No data")
@@ -179,7 +179,7 @@ def generate_PDF(b_exp):
                         with tag("pre"):
                             gtfo = binary_data.get("gtfo", [])
                             if not gtfo:
-                                text("No results available")
+                                text("No matches found")
                             elif isinstance(gtfo, list):
                                 text("\n".join(str(s) for s in gtfo[:50]))
                             else:
@@ -330,16 +330,22 @@ def generate_report(b_exp, default_binary=None):
                     if (!raw || (Array.isArray(raw) && raw.length === 0)) {
                         return null;
                     }
-
+                    
                     if (type === 'flags' && Array.isArray(raw)) {
                         const lines = raw.slice(0, 50).map(function(f) {
                             if (f && typeof f === 'object') {
-                                return (f.string || 'N/A') + ' (' + (f.severity || 'N/A') + ')';
+                                // INCLUDE CONTEXT FIELD TO MATCH PDF OUTPUT
+                                var str = f.string || 'N/A';
+                                var sev = f.severity || 'N/A';
+                                var ctx = f.context || '';
+                                // Match PDF format: "string (severity)-context"
+                                return str + ' (' + sev + ')' + (ctx ? '-' + ctx : '');
                             }
                             return String(f);
                         });
                         return lines.join('\\n');
                     }
+
 
                     if (type === 'timeouts') {
                         // Stored as a bare string ("timeout") for a single hit,
